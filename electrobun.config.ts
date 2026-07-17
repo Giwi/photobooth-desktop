@@ -21,6 +21,7 @@ export default {
       "src/mainview/index.html": "views/mainview/index.html",
       "src/mainview/index.css": "views/mainview/index.css",
       "src/mainview/vendor": "views/mainview/vendor",
+      "src/mainview/assets/icon.svg": "icon.svg",
       backgrounds: "backgrounds",
       "config.json": "config.json",
     },

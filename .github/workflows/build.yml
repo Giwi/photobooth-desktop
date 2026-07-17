@@ -54,6 +54,7 @@ jobs:
           Name=Photobooth
           Comment=Webcam photobooth with background overlays
           Exec=/usr/lib/photobooth/launcher
+          Icon=/usr/lib/photobooth/icon.svg
           Terminal=false
           Type=Application
           Categories=Graphics;Photography;
