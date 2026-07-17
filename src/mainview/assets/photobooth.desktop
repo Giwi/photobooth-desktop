@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Photobooth
+Comment=Webcam photobooth with background overlays
+Exec=%%LAUNCHER%%
+Icon=%%ICON%%
+Terminal=false
+Type=Application
+Categories=Graphics;Photography;
+StartupNotify=true

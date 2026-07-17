@@ -22,6 +22,7 @@ export default {
       "src/mainview/index.css": "views/mainview/index.css",
       "src/mainview/vendor": "views/mainview/vendor",
       "src/mainview/assets/icon.svg": "icon.svg",
+      "src/mainview/assets/photobooth.desktop": "photobooth.desktop",
       backgrounds: "backgrounds",
       "config.json": "config.json",
     },
