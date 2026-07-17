@@ -8,7 +8,7 @@
     "build": "electrobun build",
     "build:canary": "electrobun build --env=canary",
     "start": "electrobun start",
-    "setup:desktop": "bash -c 'D=$(find build -name launcher -type f 2>/dev/null | head -1) && P=$(dirname \"$D\")/.. && I=$(find \"$P\" -name icon.svg 2>/dev/null | head -1) && mkdir -p ~/.local/share/applications && cat src/mainview/assets/photobooth.desktop | sed \"s|%%LAUNCHER%%|$D|g; s|%%ICON%%|$I|g\" > ~/.local/share/applications/photobooth.desktop && echo \"Desktop file installed: ~/.local/share/applications/photobooth.desktop\"'"
+    "setup:desktop": "bash scripts/setup-desktop.sh"
   },
   "dependencies": {
     "electrobun": "^1.18.1",
