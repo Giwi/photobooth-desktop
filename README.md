@@ -40,55 +40,6 @@ bun run dev     # Run dev build
 
 DevTools open automatically in dev mode.
 
-## Architecture
-
-```
-photobooth-desktop/
-├── electrobun.config.ts          # Build config (entrypoint, JSX, copy)
-├── src/
-│   ├── bun/
-│   │   └── index.ts              # Main process (RPC handlers, file I/O, i18n)
-│   └── mainview/
-│       ├── index.tsx              # Mount point (3 lines)
-│       ├── App.tsx                # Root component (state, effects, capture flow)
-│       ├── index.html             # HTML shell
-│       ├── index.css              # All styling (~800 lines)
-│       ├── lib/
-│       │   ├── constants.ts       # W, H, defaults, action labels
-│       │   ├── canvas.ts          # Drawing helpers (bg, video, watermark, strip)
-│       │   └── utils.ts           # sleep, keyMatch, formatGpBinding
-│       ├── components/
-│       │   ├── BackgroundsBar.tsx  # Thumbnail strip with preloaded data URLs
-│       │   ├── Viewport.tsx        # Video, canvas, countdown, flash, preview
-│       │   ├── SettingsBar.tsx     # Mirror, strip, help, settings buttons
-│       │   ├── SettingsOverlay.tsx # In-app settings panel
-│       │   ├── ToastContainer.tsx  # Notification toasts
-│       │   └── ClickAway.tsx       # Click-outside helper
-│       └── vendor/                 # Bootstrap Icons (base64-inlined)
-├── backgrounds/                   # Overlay images (PNG, JPG, WEBP, SVG)
-├── i18n/                          # Translation files (en, fr, de, es)
-└── config.json                    # User config (auto-managed by settings)
-```
-
-## Configuration
-
-Edit `config.json` or use the in-app **Settings** panel (gear icon):
-
-- Language (EN/FR/DE/ES)
-- Webcam selection
-- Countdown duration (3s/5s/10s)
-- Watermark text
-- Keyboard bindings (click to rebind)
-- Gamepad bindings (click to rebind, press button or move axis)
-
-## Tech Stack
-
-- **UI**: Preact with automatic JSX runtime via `preact/jsx-runtime`
-- **Framework**: Electrobun — Bun as runtime, CEF as webview on Linux
-- **RPC**: Typed IPC between bun process and webview (replaces Express HTTP API)
-- **State**: Preact hooks (useState, useEffect, useRef, useCallback)
-- **Canvas**: Compositor draws video + background + watermark → data URL → save/print
-
 ## Credits
 
 Part of the [Photobooth project](https://github.com/giwi/photobooth) by GiwiSoft.
