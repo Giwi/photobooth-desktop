@@ -214,8 +214,7 @@ export function App() {
   // --- Gamepad ---
   useEffect(() => {
     const poll = () => {
-      const gamepads = navigator.getGamepads();
-      const gp = gamepads[0];
+      const gp = Array.from(navigator.getGamepads()).find(Boolean);
       if (!gp) { requestAnimationFrame(poll); return; }
       const gmap = gamepadMapRef.current;
 
@@ -242,7 +241,6 @@ export function App() {
       notify(`${t("notify.gamepadConnected")} ${e.gamepad.id}`, "success");
       prevGamepadStateRef.current = {};
       prevAxisStateRef.current = {};
-      requestAnimationFrame(poll);
     };
     const onDisconnect = (e: GamepadEvent) => {
       notify(`${t("notify.gamepadDisconnected")} ${e.gamepad.id}`, "error");
@@ -250,6 +248,10 @@ export function App() {
 
     window.addEventListener("gamepadconnected", onConnect);
     window.addEventListener("gamepaddisconnected", onDisconnect);
+
+    // Start polling immediately to catch already-connected gamepads
+    requestAnimationFrame(poll);
+
     return () => {
       window.removeEventListener("gamepadconnected", onConnect);
       window.removeEventListener("gamepaddisconnected", onDisconnect);
@@ -443,7 +445,7 @@ export function App() {
     notify(t("notify.configSaved"), "success");
   }
 
-  const gpConnected = (() => { try { return !!navigator.getGamepads()[0]; } catch { return false; } })();
+  const gpConnected = (() => { try { return !!Array.from(navigator.getGamepads()).find(Boolean); } catch { return false; } })();
 
   return (
     <>
