@@ -1,0 +1,19 @@
+{
+  "name": "photobooth-desktop",
+  "version": "1.0.0",
+  "description": "Photobooth desktop app built with Electrobun",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "electrobun dev --watch",
+    "build": "electrobun build",
+    "build:canary": "electrobun build --env=canary",
+    "start": "electrobun start"
+  },
+  "dependencies": {
+    "electrobun": "^1.18.1",
+    "preact": "^10.29.7"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
