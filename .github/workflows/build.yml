@@ -21,19 +21,38 @@ jobs:
 
       - run: bun install
 
-      - run: bun run build
+      # Dev bundle for CI validation (push/PR only)
+      - name: Build dev bundle
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: bun run build
 
-      - name: Prepare build dir
+      - name: Prepare dev build dir
+        if: "!startsWith(github.ref, 'refs/tags/')"
         run: |
           mv build/dev-linux-x64/Photobooth-dev Photobooth-linux-x64
 
-      - name: Archive tar.gz
+      - name: Archive dev tar.gz
+        if: "!startsWith(github.ref, 'refs/tags/')"
         run: tar czf Photobooth-linux-x64.tar.gz Photobooth-linux-x64
 
       - uses: actions/upload-artifact@v4
+        if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           name: Photobooth-linux-x64
           path: Photobooth-linux-x64.tar.gz
+          retention-days: 5
+
+      # Production build on tags
+      - name: Build production bundle (stable)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: bun run build:stable
+
+      - name: Upload production artifacts
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: Photobooth-linux-x64-release
+          path: artifacts/stable-linux-x64-*
           retention-days: 5
 
       - name: Install fpm
@@ -48,12 +67,12 @@ jobs:
         run: |
           VERSION=${GITHUB_REF_NAME#v}
           mkdir -p pkg/usr/lib/photobooth pkg/usr/share/applications
-          cp -r Photobooth-linux-x64/* pkg/usr/lib/photobooth/
+          cp -r build/stable-linux-x64/Photobooth/* pkg/usr/lib/photobooth/
           cat > pkg/usr/share/applications/photobooth.desktop <<EOF
           [Desktop Entry]
           Name=Photobooth
           Comment=Webcam photobooth with background overlays
-          Exec=/usr/lib/photobooth/launcher
+          Exec=/usr/lib/photobooth/bin/launcher
           Icon=/usr/lib/photobooth/icon.svg
           Terminal=false
           Type=Application
@@ -102,9 +121,13 @@ jobs:
 
       - run: bun install
 
-      - run: bun run build
+      # Dev bundle for CI validation (push/PR only)
+      - name: Build dev bundle
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        run: bun run build
 
-      - name: Prepare exe
+      - name: Prepare dev build dir
+        if: "!startsWith(github.ref, 'refs/tags/')"
         shell: pwsh
         run: |
           $buildDir = Get-ChildItem -Path build -Recurse -Directory | Where-Object { $_.Name -eq "Photobooth" -or $_.Name -eq "Photobooth-dev" } | Select-Object -First 1
@@ -114,9 +137,23 @@ jobs:
           }
 
       - uses: actions/upload-artifact@v4
+        if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           name: Photobooth-win-x64
           path: Photobooth-win-x64.zip
+          retention-days: 5
+
+      # Production build on tags
+      - name: Build production bundle (stable)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: bun run build:stable
+
+      - name: Upload production artifacts
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: Photobooth-win-x64-release
+          path: artifacts/stable-win-x64-*
           retention-days: 5
 
   release:
@@ -128,7 +165,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: Photobooth-linux-x64
+          name: Photobooth-linux-x64-release
+          path: release
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Photobooth-win-x64-release
           path: release
 
       - uses: actions/download-artifact@v4
@@ -140,12 +182,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: photobooth-${{ github.ref_name }}.rpm
-          path: release
-        continue-on-error: true
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: Photobooth-win-x64
           path: release
         continue-on-error: true
 
