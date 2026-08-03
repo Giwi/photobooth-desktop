@@ -18,11 +18,14 @@ Desktop photobooth app built with Electron + Preact.
 - Optional watermark text
 - In-app settings overlay (instead of editing config.json)
 - Save to disk and optional print (4×6 Glossy)
+- Splash screen with background loading progress indicator
 
-Runtime data (config, backgrounds, photos) lives in the OS cache dir, not the
-app bundle: `~/.cache/photobooth` (Linux), `~/Library/Caches/photobooth`
-(macOS), `%LOCALAPPDATA%\photobooth` (Windows). Defaults are seeded from the
-bundle on first run; manage backgrounds in the Settings → Background tab.
+Runtime data (config, backgrounds) lives in the OS cache dir, not the app
+bundle: `~/.cache/photobooth` (Linux), `~/Library/Caches/photobooth` (macOS),
+`%LOCALAPPDATA%\photobooth` (Windows). Photos are saved in the OS-specific
+Pictures folder: `~/Pictures/photobooth` (Linux/macOS), `%USERPROFILE%\Pictures\photobooth`
+(Windows). Defaults are seeded from the bundle on first run; manage backgrounds
+in the Settings → Background tab.
 
 ## Prerequisites
 
