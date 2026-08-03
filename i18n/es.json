@@ -51,5 +51,7 @@
   "settings.backup": "Copia de seguridad",
   "settings.exportSettings": "Exportar ajustes",
   "settings.importSettings": "Importar ajustes",
-  "settings.save": "Guardar"
+  "settings.save": "Guardar",
+  "about.title": "Acerca de",
+  "about.description": "Una aplicación de fotomatón de escritorio con transmisión de cámara web en vivo, superposiciones de fondo y modo de tira de fotos."
 }

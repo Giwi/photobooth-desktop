@@ -51,5 +51,7 @@
   "settings.backup": "Backup",
   "settings.exportSettings": "Export settings",
   "settings.importSettings": "Import settings",
-  "settings.save": "Save"
+  "settings.save": "Save",
+  "about.title": "About",
+  "about.description": "A desktop photobooth application with live webcam feed, background overlays, and photo strip mode."
 }

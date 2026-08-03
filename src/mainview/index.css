@@ -978,3 +978,128 @@ footer a:hover {
 .settings-primary:active {
   transform: translateY(0) scale(0.97);
 }
+
+/* --- About overlay --- */
+#about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s var(--ease-out);
+}
+
+#about-overlay[hidden] { display: none; }
+
+#about-panel {
+  width: 420px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.about-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.about-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+#btn-about-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+#btn-about-close:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.about-body {
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.about-logo {
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.about-body h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.about-version {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.about-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.about-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.about-links a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.about-links a:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.about-copyright {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

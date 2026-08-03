@@ -51,5 +51,7 @@
   "settings.backup": "Sicherung",
   "settings.exportSettings": "Einstellungen exportieren",
   "settings.importSettings": "Einstellungen importieren",
-  "settings.save": "Speichern"
+  "settings.save": "Speichern",
+  "about.title": "Über",
+  "about.description": "Eine Desktop-Photobooth-Anwendung mit Live-Webcam-Feed, Hintergrundüberlagerungen und Fotostreifen-Modus."
 }

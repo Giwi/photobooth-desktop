@@ -51,5 +51,7 @@
   "settings.backup": "Sauvegarde",
   "settings.exportSettings": "Exporter les paramètres",
   "settings.importSettings": "Importer les paramètres",
-  "settings.save": "Enregistrer"
+  "settings.save": "Enregistrer",
+  "about.title": "À propos",
+  "about.description": "Une application de photomaton de bureau avec flux webcam en direct, superpositions d'arrière-plan et mode bande photo."
 }
