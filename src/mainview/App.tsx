@@ -219,6 +219,11 @@ export function App() {
       if (settingsOpenRef.current) return;
       if (showPreviewRef.current) return;
       const k = e.key;
+      if (k === "ArrowLeft" || k === "ArrowRight") {
+        e.preventDefault();
+        dispatchAction(k === "ArrowLeft" ? "prevBg" : "nextBg");
+        return;
+      }
       for (const [action, binding] of Object.entries(keyMapRef.current)) {
         if (keyMatch(k, binding) || (action === "capture" && e.code === "Space")) {
           e.preventDefault();
