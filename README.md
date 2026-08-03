@@ -1,6 +1,6 @@
 # Photobooth Desktop
 
-Desktop photobooth app built with [Electrobun](https://electrobun.dev/) + Preact + CEF.
+Desktop photobooth app built with Electron + Preact.
 
 ## Features
 
@@ -26,24 +26,28 @@ bundle on first run; manage backgrounds in the Settings → Background tab.
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) v1.2+
-- Linux: bundled CEF (auto-downloaded on first build)
+- [Node.js](https://nodejs.org/) 20+ and [Yarn](https://yarnpkg.com/) 1.x
 
 ## Setup
 
 ```bash
-bun install
+yarn install
 cp -r ../photobooth/backgrounds/* backgrounds/  # or add your own PNGs
 ```
 
 ## Development
 
 ```bash
-bun run build   # Build + bundle
-bun run dev     # Run dev build
+yarn electron:dev   # Build bundles + launch Electron (DevTools auto-open)
 ```
 
 DevTools open automatically in dev mode.
+
+## Packaging
+
+```bash
+yarn electron:dist  # Build deb, rpm, AppImage into dist/
+```
 
 ## Credits
 

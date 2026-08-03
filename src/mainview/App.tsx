@@ -1,7 +1,6 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect, useRef, useCallback } from "preact/hooks";
-import Electrobun, { Electroview } from "electrobun/view";
-import type { PhotoboothRPC } from "../bun/index";
+import { rpc } from "./lib/rpc";
 
 import { W, H, AXIS_THRESHOLD, DEFAULT_KEY_MAP, DEFAULT_GP_MAP } from "./lib/constants";
 import { drawBgTo, drawVideoCrop, drawWatermark, frameToDataUrl, createStrip } from "./lib/canvas";
@@ -14,13 +13,7 @@ import { SettingsOverlay } from "./components/SettingsOverlay";
 import { ToastContainer } from "./components/ToastContainer";
 import { ClickAway } from "./components/ClickAway";
 
-// --- RPC (shared singleton) ---
-export const rpc = Electroview.defineRPC<PhotoboothRPC>({
-  maxRequestTime: 10000,
-  handlers: { requests: {}, messages: {} },
-});
-export const electrobun = new Electrobun.Electroview({ rpc });
-
+// --- RPC (shared singleton, bridged to the Electron main process) ---
 export function App() {
   // --- State ---
   const [bgFiles, setBgFiles] = useState<{ file: string; position: string | null }[]>([]);
@@ -92,12 +85,12 @@ export function App() {
 
   // --- Backgrounds refresh ---
   const reloadBgs = useCallback(async () => {
-    const config = await electrobun.rpc!.request.getConfig();
+    const config = await rpc.request.getConfig();
     setBgFiles(config.backgrounds);
     const urls: Record<string, string> = {};
     await Promise.all(config.backgrounds.map(async (bg) => {
       try {
-        urls[bg.file] = await electrobun.rpc!.request.getBackgroundPath({ file: bg.file });
+        urls[bg.file] = await rpc.request.getBackgroundPath({ file: bg.file });
       } catch {}
     }));
     setBgUrls(urls);
@@ -132,7 +125,7 @@ export function App() {
       liveCtxRef.current?.clearRect(0, 0, W, H);
       return;
     }
-    electrobun.rpc!.request.getBackgroundPath({ file: bg.file }).then((dataUrl) => {
+    rpc.request.getBackgroundPath({ file: bg.file }).then((dataUrl) => {
       const img = new Image();
       img.onload = () => {
         bgImageRef.current = img;
@@ -164,7 +157,7 @@ export function App() {
       if (lc) { lc.width = W; lc.height = H; liveCtxRef.current = lc.getContext("2d"); }
       if (cc) { cc.width = W; cc.height = H; compCtxRef.current = cc.getContext("2d"); }
 
-      const config = await electrobun.rpc!.request.getConfig();
+      const config = await rpc.request.getConfig();
       setWatermark(config.watermark);
       if (config.keys) setKeyMap((prev) => ({ ...prev, ...config.keys! }));
       if (config.gamepad) setGamepadMap((prev) => ({ ...prev, ...config.gamepad! }));
@@ -375,7 +368,7 @@ export function App() {
 
   async function savePhoto(dataUrl: string, print: boolean) {
     try {
-      const result = await electrobun.rpc!.request.savePhoto({ image: dataUrl, print });
+      const result = await rpc.request.savePhoto({ image: dataUrl, print });
       if (result.error) notify(result.error, "error");
       else notify(print ? t("notify.savedPrint") : t("notify.saved"), "success");
     } catch {
@@ -461,10 +454,10 @@ export function App() {
   async function saveSettings() {
     setWatermark(watermark);
     setCurrentLang(settingsLang);
-    await electrobun.rpc!.request.saveConfig({
+    await rpc.request.saveConfig({
       lang: settingsLang, watermark, keys: keyMap, gamepad: gamepadMap,
     });
-    const config = await electrobun.rpc!.request.getConfig();
+    const config = await rpc.request.getConfig();
     if (config.i18n) setI18n(config.i18n);
     setSettingsOpen(false);
     notify(t("notify.configSaved"), "success");
@@ -475,7 +468,7 @@ export function App() {
     const mimeOk = /^data:image\/(png|jpe?g|webp)[;,]/i.test(dataUrl);
     if (!extOk || !mimeOk) { notify(t("notify.bgInvalidType"), "error"); return; }
     try {
-      const res = await electrobun.rpc!.request.importBackground({ name, dataUrl });
+      const res = await rpc.request.importBackground({ name, dataUrl });
       if (!res.ok) { notify(res.error || "Import failed", "error"); return; }
       await reloadBgs();
       notify(t("notify.bgImported"), "success");
@@ -486,7 +479,7 @@ export function App() {
 
   async function importBackgroundFromPath(path: string) {
     try {
-      const res = await electrobun.rpc!.request.importBackgroundFromPath({ path });
+      const res = await rpc.request.importBackgroundFromPath({ path });
       if (!res.ok) { notify(res.error || "Import failed", "error"); return; }
       await reloadBgs();
       notify(t("notify.bgImported"), "success");
@@ -495,9 +488,18 @@ export function App() {
     }
   }
 
+  async function pickBackgrounds() {
+    try {
+      const { files } = await rpc.request.openBackgroundDialog();
+      for (const path of files) await importBackgroundFromPath(path);
+    } catch {
+      notify(t("notify.bgImportFailed"), "error");
+    }
+  }
+
   async function exportSettings() {
     try {
-      const res = await electrobun.rpc!.request.exportSettings();
+      const res = await rpc.request.exportSettings();
       if (!res.path) { notify(res.error || "Export failed", "error"); return; }
       notify(t("notify.settingsExported").replace("{path}", res.path), "success", 5000);
     } catch {
@@ -507,7 +509,7 @@ export function App() {
 
   async function importSettings(json: string) {
     try {
-      const res = await electrobun.rpc!.request.importSettings({ json });
+      const res = await rpc.request.importSettings({ json });
       if (!res.ok) { notify(res.error || "Import failed", "error"); return; }
       notify(t("notify.settingsImported"), "success");
       setTimeout(() => location.reload(), 600);
@@ -518,7 +520,7 @@ export function App() {
 
   async function deleteBackground(file: string) {
     try {
-      const res = await electrobun.rpc!.request.deleteBackground({ file });
+      const res = await rpc.request.deleteBackground({ file });
       if (!res.ok) { notify(res.error || "Delete failed", "error"); return; }
       await reloadBgs();
       notify(t("notify.bgDeleted"), "success");
@@ -529,7 +531,7 @@ export function App() {
 
   async function setBgPosition(file: string, position: string | null) {
     try {
-      await electrobun.rpc!.request.setBackgroundPosition({ file, position });
+      await rpc.request.setBackgroundPosition({ file, position });
       await reloadBgs();
     } catch {}
   }
@@ -571,7 +573,7 @@ export function App() {
           onSwitchCamera={switchCamera} onSetKeyListening={setKeyListening}
           onSetGpListening={setGpListening} onSave={saveSettings}
           onImportBg={importBackground}
-          onImportBgPath={importBackgroundFromPath}
+          onPickBg={pickBackgrounds}
           onExportSettings={exportSettings}
           onImportSettings={importSettings}
           onDeleteBg={deleteBackground}

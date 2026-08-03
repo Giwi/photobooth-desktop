@@ -24,7 +24,7 @@ interface Props {
   onSetKeyListening: (action: string | null) => void;
   onSetGpListening: (action: string | null) => void;
   onImportBg: (name: string, dataUrl: string) => void;
-  onImportBgPath: (path: string) => void;
+  onPickBg: () => void;
   onExportSettings: () => void;
   onImportSettings: (json: string) => void;
   onDeleteBg: (file: string) => void;
@@ -43,11 +43,10 @@ export function SettingsOverlay({
   settingsLang, watermark, cameras, currentDeviceId, countdownDuration,
   backgrounds, bgUrls, keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
   onSetSettingsLang, onSetCountdownDuration, onSwitchCamera,
-  onSetKeyListening, onSetGpListening, onImportBg, onImportBgPath, onExportSettings, onImportSettings,
+  onSetKeyListening, onSetGpListening, onImportBg, onPickBg, onExportSettings, onImportSettings,
   onDeleteBg, onSetBgPosition, onSave, onClose,
 }: Props) {
   const watermarkRef = useRef<HTMLInputElement>(null);
-  const bgFileRef = useRef<HTMLInputElement>(null);
   const importFileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"general" | "background" | "bindings">("general");
   const [dragOver, setDragOver] = useState(false);
@@ -60,13 +59,6 @@ export function SettingsOverlay({
     const reader = new FileReader();
     reader.onload = () => { if (reader.result) onImportBg(file.name, reader.result as string); };
     reader.readAsDataURL(file);
-  };
-
-  const onBgFilePick = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    const files = Array.from(input.files || []);
-    files.forEach((f) => handleBgFile(f));
-    input.value = "";
   };
 
   const onImportFilePick = (e: Event) => {
@@ -84,16 +76,7 @@ export function SettingsOverlay({
     e.preventDefault();
     setDragOver(false);
     const files = Array.from(e.dataTransfer?.files || []);
-    if (files.length) {
-      files.forEach((f) => handleBgFile(f));
-      return;
-    }
-    // CEF on Linux sometimes delivers drops as text/uri-list instead of files
-    const uriList = e.dataTransfer?.getData("text/uri-list") || "";
-    uriList.split(/\r?\n/).forEach((line) => {
-      const m = line.trim().match(/^file:\/\/(?:localhost)?\/.+/);
-      if (m) onImportBgPath(decodeURIComponent(m[0].replace(/^file:\/\/(?:localhost)?/, "")));
-    });
+    files.forEach((f) => handleBgFile(f));
   };
 
   const tabs = [
@@ -182,11 +165,10 @@ export function SettingsOverlay({
             <div className="settings-col settings-col-narrow">
               <div
                 className={`bg-dropzone${dragOver ? " dragover" : ""}`}
-                onClick={() => bgFileRef.current?.click()}
+                onClick={onPickBg}
               >
                 <i className="bi bi-cloud-arrow-up" />
                 <span>{t("settings.dropBg")}</span>
-                <input ref={bgFileRef} type="file" accept=".png,.jpg,.jpeg,.webp" multiple onChange={onBgFilePick} />
               </div>
               <div className="settings-group">
                 <label>{t("settings.backgrounds")}</label>

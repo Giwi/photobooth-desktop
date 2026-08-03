@@ -1,4 +1,4 @@
-import { render } from "preact";
+import { h, render } from "preact";
 import { App } from "./App";
 
 console.log("[photobooth] index.tsx executing, #app =", document.getElementById("app"));
