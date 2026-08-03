@@ -4,7 +4,7 @@ export default {
   app: {
     name: "Photobooth",
     identifier: "fr.giwi.photobooth",
-    version: "1.0.0",
+    version: "0.0.1",
     description: "Webcam photobooth with background overlays",
   },
   build: {
