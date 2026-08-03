@@ -32,8 +32,19 @@ function dataDir(): string {
   return join(process.env.XDG_CACHE_HOME || join(home, ".cache"), "photobooth");
 }
 
+// Photos are stored in the user's OS-specific pictures folder
+function picturesDir(): string {
+  const home = homedir();
+  if (process.platform === "win32") {
+    // Windows: use USERPROFILE\Pictures or fall back to home
+    return join(process.env.USERPROFILE || home, "Pictures", "photobooth");
+  }
+  // macOS and Linux: use ~/Pictures
+  return join(home, "Pictures", "photobooth");
+}
+
 const DATA_DIR = dataDir();
-const PHOTOS_DIR = join(homedir(), "Pictures", "photobooth");
+const PHOTOS_DIR = picturesDir();
 const BG_DIR = join(DATA_DIR, "backgrounds");
 const CONFIG_PATH = join(DATA_DIR, "config.json");
 
