@@ -265,14 +265,51 @@ const DIST_DIR = join(app.getAppPath(), "dist");
 
 // --- Window ---
 let mainWindow: BrowserWindow | null = null;
+let splashWindow: BrowserWindow | null = null;
+
+function closeSplash() {
+  if (splashWindow && !splashWindow.isDestroyed()) splashWindow.destroy();
+  splashWindow = null;
+}
+
+register("appReady", () => {
+  closeSplash();
+  mainWindow?.show();
+  return { ok: true };
+});
+
+register("bgProgress", ({ progress, name }: { progress: number; name: string }) => {
+  if (splashWindow && !splashWindow.isDestroyed()) {
+    splashWindow.webContents.send("bgProgress", { progress, name });
+  }
+  return { ok: true };
+});
 
 function createWindow() {
+  splashWindow = new BrowserWindow({
+    width: 400,
+    height: 280,
+    frame: false,
+    resizable: false,
+    center: true,
+    alwaysOnTop: true,
+    webPreferences: {
+      preload: join(DIST_DIR, "splash-preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  });
+  splashWindow.loadFile(join(DIST_DIR, "renderer", "splash.html"));
+  splashWindow.on("closed", () => { splashWindow = null; });
+
   mainWindow = new BrowserWindow({
     title: "Photobooth",
     width: 1400,
     height: 900,
     x: 100,
     y: 50,
+    show: false,
     webPreferences: {
       preload: join(DIST_DIR, "preload.cjs"),
       contextIsolation: true,
@@ -282,6 +319,11 @@ function createWindow() {
   });
 
   mainWindow.loadFile(join(DIST_DIR, "renderer", "index.html"));
+
+  setTimeout(() => {
+    closeSplash();
+    mainWindow?.show();
+  }, 15000);
 
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();

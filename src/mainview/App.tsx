@@ -90,11 +90,21 @@ export function App() {
     const config = await rpc.request.getConfig();
     setBgFiles(config.backgrounds);
     const urls: Record<string, string> = {};
-    await Promise.all(config.backgrounds.map(async (bg) => {
+    const total = config.backgrounds.length;
+    let loaded = 0;
+    
+    for (const bg of config.backgrounds) {
       try {
         urls[bg.file] = await rpc.request.getBackgroundPath({ file: bg.file });
       } catch {}
-    }));
+      loaded++;
+      const progress = Math.round((loaded / total) * 100);
+      rpc.request.bgProgress({ progress, name: bg.file });
+    }
+    
+    // Final "done" step
+    rpc.request.bgProgress({ progress: 100, name: "Done" });
+    
     setBgUrls(urls);
   }, []);
 
@@ -154,29 +164,36 @@ export function App() {
   // --- Init ---
   useEffect(() => {
     (async () => {
-      const lc = liveCanvasRef.current;
-      const cc = compositorRef.current;
-      if (lc) { lc.width = W; lc.height = H; liveCtxRef.current = lc.getContext("2d"); }
-      if (cc) { cc.width = W; cc.height = H; compCtxRef.current = cc.getContext("2d"); }
+      try {
+        const lc = liveCanvasRef.current;
+        const cc = compositorRef.current;
+        if (lc) { lc.width = W; lc.height = H; liveCtxRef.current = lc.getContext("2d"); }
+        if (cc) { cc.width = W; cc.height = H; compCtxRef.current = cc.getContext("2d"); }
 
-      const config = await rpc.request.getConfig();
-      setWatermark(config.watermark);
-      if (config.keys) setKeyMap((prev) => ({ ...prev, ...config.keys! }));
-      if (config.gamepad) setGamepadMap((prev) => ({ ...prev, ...config.gamepad! }));
-      if (config.lang) setCurrentLang(config.lang);
-      if (config.i18n) setI18n(config.i18n);
-      await reloadBgs();
+        const config = await rpc.request.getConfig();
+        setWatermark(config.watermark);
+        if (config.keys) setKeyMap((prev) => ({ ...prev, ...config.keys! }));
+        if (config.gamepad) setGamepadMap((prev) => ({ ...prev, ...config.gamepad! }));
+        if (config.lang) setCurrentLang(config.lang);
+        if (config.i18n) setI18n(config.i18n);
+        await reloadBgs();
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: W }, height: { ideal: H }, aspectRatio: { ideal: 3 / 2 } },
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: W }, height: { ideal: H }, aspectRatio: { ideal: 3 / 2 } },
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+        const track = stream.getVideoTracks()[0];
+        if (track) setCurrentDeviceId(track.getSettings().deviceId ?? null);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        rpc.request.appReady();
       }
-      const track = stream.getVideoTracks()[0];
-      if (track) setCurrentDeviceId(track.getSettings().deviceId ?? null);
-    })().catch(console.error);
+    })();
   }, []);
 
   // --- CEF file drag-drop: must prevent default at document level or drops navigate the view ---

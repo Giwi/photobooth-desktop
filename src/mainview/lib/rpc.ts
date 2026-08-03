@@ -15,6 +15,8 @@ function invoke<Response>(channel: string, params?: unknown): Promise<Response> 
 }
 
 type Requests = {
+  appReady: { params: void; response: { ok: boolean } };
+  bgProgress: { params: { progress: number; name: string }; response: { ok: boolean } };
   getConfig: {
     params: void;
     response: {
@@ -48,6 +50,9 @@ type Requests = {
 
 export const rpc = {
   request: {
+    appReady: (): Promise<Requests["appReady"]["response"]> => invoke("appReady"),
+    bgProgress: (params: Requests["bgProgress"]["params"]): Promise<Requests["bgProgress"]["response"]> =>
+      invoke("bgProgress", params),
     getConfig: (): Promise<Requests["getConfig"]["response"]> => invoke("getConfig"),
     getBackgroundPath: (params: Requests["getBackgroundPath"]["params"]): Promise<Requests["getBackgroundPath"]["response"]> =>
       invoke("getBackgroundPath", params),
