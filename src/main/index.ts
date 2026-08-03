@@ -33,7 +33,7 @@ function dataDir(): string {
 }
 
 const DATA_DIR = dataDir();
-const PHOTOS_DIR = join(DATA_DIR, "photos");
+const PHOTOS_DIR = join(homedir(), "Pictures", "photobooth");
 const BG_DIR = join(DATA_DIR, "backgrounds");
 const CONFIG_PATH = join(DATA_DIR, "config.json");
 
