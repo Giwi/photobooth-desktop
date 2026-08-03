@@ -26,6 +26,7 @@ export default {
       backgrounds: "backgrounds",
       "config.json": "config.json",
     },
+    watchIgnore: ["backgrounds/**", "config.json"],
     mac: {
       bundleCEF: false,
       defaultRenderer: "native",

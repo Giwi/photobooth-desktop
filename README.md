@@ -19,6 +19,11 @@ Desktop photobooth app built with [Electrobun](https://electrobun.dev/) + Preact
 - In-app settings overlay (instead of editing config.json)
 - Save to disk and optional print (4×6 Glossy)
 
+Runtime data (config, backgrounds, photos) lives in the OS cache dir, not the
+app bundle: `~/.cache/photobooth` (Linux), `~/Library/Caches/photobooth`
+(macOS), `%LOCALAPPDATA%\photobooth` (Windows). Defaults are seeded from the
+bundle on first run; manage backgrounds in the Settings → Background tab.
+
 ## Prerequisites
 
 - [Bun](https://bun.sh/) v1.2+

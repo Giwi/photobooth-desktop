@@ -90,6 +90,19 @@ export function App() {
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), ms);
   }, []);
 
+  // --- Backgrounds refresh ---
+  const reloadBgs = useCallback(async () => {
+    const config = await electrobun.rpc!.request.getConfig();
+    setBgFiles(config.backgrounds);
+    const urls: Record<string, string> = {};
+    await Promise.all(config.backgrounds.map(async (bg) => {
+      try {
+        urls[bg.file] = await electrobun.rpc!.request.getBackgroundPath({ file: bg.file });
+      } catch {}
+    }));
+    setBgUrls(urls);
+  }, []);
+
   // --- Canvas drawing ---
   const drawLive = useCallback(() => {
     const ctx = liveCtxRef.current;
@@ -133,6 +146,11 @@ export function App() {
   useEffect(() => { drawLive(); }, [selectedBg, mirrorMode, drawLive]);
   useEffect(() => { loadBg(selectedBg); }, [selectedBg, loadBg]);
 
+  // Keep selection valid when backgrounds are added/removed
+  useEffect(() => {
+    setSelectedBg((i) => Math.min(i, Math.max(0, backgrounds.length - 1)));
+  }, [bgFiles]);
+
   // --- Video mirror ---
   useEffect(() => {
     if (videoRef.current) videoRef.current.style.transform = mirrorMode ? "scaleX(-1)" : "";
@@ -147,21 +165,12 @@ export function App() {
       if (cc) { cc.width = W; cc.height = H; compCtxRef.current = cc.getContext("2d"); }
 
       const config = await electrobun.rpc!.request.getConfig();
-      setBgFiles(config.backgrounds);
       setWatermark(config.watermark);
       if (config.keys) setKeyMap((prev) => ({ ...prev, ...config.keys! }));
       if (config.gamepad) setGamepadMap((prev) => ({ ...prev, ...config.gamepad! }));
       if (config.lang) setCurrentLang(config.lang);
       if (config.i18n) setI18n(config.i18n);
-
-      // Preload background data URLs
-      const urls: Record<string, string> = {};
-      await Promise.all(config.backgrounds.map(async (bg) => {
-        try {
-          urls[bg.file] = await electrobun.rpc!.request.getBackgroundPath({ file: bg.file });
-        } catch {}
-      }));
-      setBgUrls(urls);
+      await reloadBgs();
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: W }, height: { ideal: H }, aspectRatio: { ideal: 3 / 2 } },
@@ -173,6 +182,17 @@ export function App() {
       const track = stream.getVideoTracks()[0];
       if (track) setCurrentDeviceId(track.getSettings().deviceId ?? null);
     })().catch(console.error);
+  }, []);
+
+  // --- CEF file drag-drop: must prevent default at document level or drops navigate the view ---
+  useEffect(() => {
+    const prevent = (e: DragEvent) => e.preventDefault();
+    document.addEventListener("dragover", prevent);
+    document.addEventListener("drop", prevent);
+    return () => {
+      document.removeEventListener("dragover", prevent);
+      document.removeEventListener("drop", prevent);
+    };
   }, []);
 
   // --- Dispatch ---
@@ -445,6 +465,70 @@ export function App() {
     notify(t("notify.configSaved"), "success");
   }
 
+  async function importBackground(name: string, dataUrl: string) {
+    const extOk = /\.(png|jpe?g|webp)$/i.test(name);
+    const mimeOk = /^data:image\/(png|jpe?g|webp)[;,]/i.test(dataUrl);
+    if (!extOk || !mimeOk) { notify(t("notify.bgInvalidType"), "error"); return; }
+    try {
+      const res = await electrobun.rpc!.request.importBackground({ name, dataUrl });
+      if (!res.ok) { notify(res.error || "Import failed", "error"); return; }
+      await reloadBgs();
+      notify(t("notify.bgImported"), "success");
+    } catch {
+      notify(t("notify.bgImportFailed"), "error");
+    }
+  }
+
+  async function importBackgroundFromPath(path: string) {
+    try {
+      const res = await electrobun.rpc!.request.importBackgroundFromPath({ path });
+      if (!res.ok) { notify(res.error || "Import failed", "error"); return; }
+      await reloadBgs();
+      notify(t("notify.bgImported"), "success");
+    } catch {
+      notify(t("notify.bgImportFailed"), "error");
+    }
+  }
+
+  async function exportSettings() {
+    try {
+      const res = await electrobun.rpc!.request.exportSettings();
+      if (!res.path) { notify(res.error || "Export failed", "error"); return; }
+      notify(t("notify.settingsExported").replace("{path}", res.path), "success", 5000);
+    } catch {
+      notify(t("notify.settingsExportFailed"), "error");
+    }
+  }
+
+  async function importSettings(json: string) {
+    try {
+      const res = await electrobun.rpc!.request.importSettings({ json });
+      if (!res.ok) { notify(res.error || "Import failed", "error"); return; }
+      notify(t("notify.settingsImported"), "success");
+      setTimeout(() => location.reload(), 600);
+    } catch {
+      notify(t("notify.settingsImportFailed"), "error");
+    }
+  }
+
+  async function deleteBackground(file: string) {
+    try {
+      const res = await electrobun.rpc!.request.deleteBackground({ file });
+      if (!res.ok) { notify(res.error || "Delete failed", "error"); return; }
+      await reloadBgs();
+      notify(t("notify.bgDeleted"), "success");
+    } catch {
+      notify(t("notify.bgImportFailed"), "error");
+    }
+  }
+
+  async function setBgPosition(file: string, position: string | null) {
+    try {
+      await electrobun.rpc!.request.setBackgroundPosition({ file, position });
+      await reloadBgs();
+    } catch {}
+  }
+
   const gpConnected = (() => { try { return !!Array.from(navigator.getGamepads()).find(Boolean); } catch { return false; } })();
 
   return (
@@ -475,11 +559,18 @@ export function App() {
         <SettingsOverlay
           currentLang={currentLang} settingsLang={settingsLang} watermark={watermark}
           cameras={cameras} currentDeviceId={currentDeviceId} countdownDuration={countdownDuration}
+          backgrounds={bgFiles} bgUrls={bgUrls}
           keyMap={keyMap} gamepadMap={gamepadMap} keyListening={keyListening}
           gpListening={gpListening} gpConnected={gpConnected} t={t}
           onSetSettingsLang={setSettingsLang} onSetCountdownDuration={setCountdownDuration}
           onSwitchCamera={switchCamera} onSetKeyListening={setKeyListening}
           onSetGpListening={setGpListening} onSave={saveSettings}
+          onImportBg={importBackground}
+          onImportBgPath={importBackgroundFromPath}
+          onExportSettings={exportSettings}
+          onImportSettings={importSettings}
+          onDeleteBg={deleteBackground}
+          onSetBgPosition={setBgPosition}
           onClose={() => setSettingsOpen(false)}
         />
       )}

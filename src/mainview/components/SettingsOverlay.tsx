@@ -1,5 +1,5 @@
 import { h } from "preact";
-import { useRef, useEffect } from "preact/hooks";
+import { useRef, useEffect, useState } from "preact/hooks";
 import { ACTION_LABELS } from "../lib/constants";
 import { formatGpBinding } from "../lib/utils";
 
@@ -10,6 +10,8 @@ interface Props {
   cameras: { id: string; label: string }[];
   currentDeviceId: string | null;
   countdownDuration: number;
+  backgrounds: { file: string; position: string | null }[];
+  bgUrls: Record<string, string>;
   keyMap: Record<string, string>;
   gamepadMap: Record<string, number | { axis: number; dir: number }>;
   keyListening: string | null;
@@ -21,24 +23,91 @@ interface Props {
   onSwitchCamera: (id: string) => void;
   onSetKeyListening: (action: string | null) => void;
   onSetGpListening: (action: string | null) => void;
+  onImportBg: (name: string, dataUrl: string) => void;
+  onImportBgPath: (path: string) => void;
+  onExportSettings: () => void;
+  onImportSettings: (json: string) => void;
+  onDeleteBg: (file: string) => void;
+  onSetBgPosition: (file: string, position: string | null) => void;
   onSave: () => void;
   onClose: () => void;
 }
 
+const POS_OPTIONS: { v: string | null; k: string }[] = [
+  { v: "top", k: "settings.posTop" },
+  { v: null, k: "settings.posCenter" },
+  { v: "bottom", k: "settings.posBottom" },
+];
+
 export function SettingsOverlay({
   settingsLang, watermark, cameras, currentDeviceId, countdownDuration,
-  keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
+  backgrounds, bgUrls, keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
   onSetSettingsLang, onSetCountdownDuration, onSwitchCamera,
-  onSetKeyListening, onSetGpListening, onSave, onClose,
+  onSetKeyListening, onSetGpListening, onImportBg, onImportBgPath, onExportSettings, onImportSettings,
+  onDeleteBg, onSetBgPosition, onSave, onClose,
 }: Props) {
   const watermarkRef = useRef<HTMLInputElement>(null);
+  const bgFileRef = useRef<HTMLInputElement>(null);
+  const importFileRef = useRef<HTMLInputElement>(null);
+  const [tab, setTab] = useState<"general" | "background" | "bindings">("general");
+  const [dragOver, setDragOver] = useState(false);
 
   useEffect(() => {
     if (watermarkRef.current) watermarkRef.current.value = watermark || "";
   }, [watermark]);
 
+  const handleBgFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => { if (reader.result) onImportBg(file.name, reader.result as string); };
+    reader.readAsDataURL(file);
+  };
+
+  const onBgFilePick = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    files.forEach((f) => handleBgFile(f));
+    input.value = "";
+  };
+
+  const onImportFilePick = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => { if (typeof reader.result === "string") onImportSettings(reader.result); };
+      reader.readAsText(file);
+    }
+    input.value = "";
+  };
+
+  const onDropBg = (e: DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer?.files || []);
+    if (files.length) {
+      files.forEach((f) => handleBgFile(f));
+      return;
+    }
+    // CEF on Linux sometimes delivers drops as text/uri-list instead of files
+    const uriList = e.dataTransfer?.getData("text/uri-list") || "";
+    uriList.split(/\r?\n/).forEach((line) => {
+      const m = line.trim().match(/^file:\/\/(?:localhost)?\/.+/);
+      if (m) onImportBgPath(decodeURIComponent(m[0].replace(/^file:\/\/(?:localhost)?/, "")));
+    });
+  };
+
+  const tabs = [
+    { id: "general" as const, label: t("settings.tabGeneral") },
+    { id: "background" as const, label: t("settings.tabBackground") },
+    { id: "bindings" as const, label: t("settings.tabBindings") },
+  ];
+
   return (
-    <div id="settings-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div id="settings-overlay" className={dragOver ? "dragover" : ""}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={(e) => { if (e.target === e.currentTarget) setDragOver(false); }}
+      onDrop={onDropBg}>
       <div id="settings-panel">
         <div className="settings-header">
           <h2>{t("settings.title")}</h2>
@@ -46,74 +115,137 @@ export function SettingsOverlay({
             <i class="bi bi-x-lg" />
           </button>
         </div>
+        <div className="settings-tabs">
+          {tabs.map((tb) => (
+            <button key={tb.id} className={`settings-tab${tab === tb.id ? " active" : ""}`}
+              onClick={() => setTab(tb.id)}>
+              {tb.label}
+            </button>
+          ))}
+        </div>
         <div className="settings-body">
-          <div className="settings-col">
-            <div className="settings-group">
-              <label>{t("settings.language")}</label>
-              <div id="cfg-lang">
-                {["en", "fr", "de", "es"].map((lang) => (
-                  <button key={lang} className={`lang-btn${settingsLang === lang ? " active" : ""}`}
-                    onClick={() => onSetSettingsLang(lang)}>
-                    {lang.toUpperCase()}
+          {tab === "general" && (
+            <div className="settings-col">
+              <div className="settings-group">
+                <label>{t("settings.language")}</label>
+                <div id="cfg-lang">
+                  {["en", "fr", "de", "es"].map((lang) => (
+                    <button key={lang} className={`lang-btn${settingsLang === lang ? " active" : ""}`}
+                      onClick={() => onSetSettingsLang(lang)}>
+                      {lang.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.webcam")}</label>
+                <div id="cfg-cameras">
+                  {cameras.length === 0 && <div className="gp-no-gamepad-msg">{t("settings.noCamera")}</div>}
+                  {cameras.map((cam) => (
+                    <div key={cam.id} className={`cam-option${cam.id === currentDeviceId ? " active" : ""}`}
+                      onClick={() => onSwitchCamera(cam.id)}>
+                      {cam.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.countdown")}</label>
+                <div id="cfg-countdown">
+                  {[3, 5, 10].map((d) => (
+                    <button key={d} className={`cd-btn${countdownDuration === d ? " active" : ""}`}
+                      onClick={() => onSetCountdownDuration(d)}>
+                      {d}s
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.watermark")}</label>
+                <input type="text" ref={watermarkRef} placeholder="e.g. 2026-01-01" />
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.backup")}</label>
+                <div className="backup-row">
+                  <button onClick={onExportSettings} title={t("settings.exportSettings")}>
+                    <i className="bi bi-download" /> {t("settings.exportSettings")}
                   </button>
-                ))}
-              </div>
-            </div>
-            <div className="settings-group">
-              <label>{t("settings.webcam")}</label>
-              <div id="cfg-cameras">
-                {cameras.length === 0 && <div className="gp-no-gamepad-msg">{t("settings.noCamera")}</div>}
-                {cameras.map((cam) => (
-                  <div key={cam.id} className={`cam-option${cam.id === currentDeviceId ? " active" : ""}`}
-                    onClick={() => onSwitchCamera(cam.id)}>
-                    {cam.label}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="settings-group">
-              <label>{t("settings.countdown")}</label>
-              <div id="cfg-countdown">
-                {[3, 5, 10].map((d) => (
-                  <button key={d} className={`cd-btn${countdownDuration === d ? " active" : ""}`}
-                    onClick={() => onSetCountdownDuration(d)}>
-                    {d}s
+                  <button onClick={() => importFileRef.current?.click()} title={t("settings.importSettings")}>
+                    <i className="bi bi-upload" /> {t("settings.importSettings")}
                   </button>
-                ))}
+                  <input ref={importFileRef} type="file" accept=".json" hidden onChange={onImportFilePick} />
+                </div>
               </div>
             </div>
-            <div className="settings-group">
-              <label>{t("settings.watermark")}</label>
-              <input type="text" ref={watermarkRef} placeholder="e.g. 2026-01-01" />
-            </div>
-          </div>
-          <div className="settings-col settings-bindings">
-            <div className="settings-group">
-              <label>{t("settings.keybindings")}</label>
-              <div id="cfg-keys">
-                {Object.entries(ACTION_LABELS).map(([action, label]) => (
-                  <div key={action} className={`key-row${keyListening === action ? " listening" : ""}`}
-                    onClick={() => onSetKeyListening(keyListening === action ? null : action)}>
-                    <span className="key-label">{t(label)}</span>
-                    <span className="key-value">{keyListening === action ? "..." : (keyMap[action] || "")}</span>
-                  </div>
-                ))}
+          )}
+          {tab === "background" && (
+            <div className="settings-col settings-col-narrow">
+              <div
+                className={`bg-dropzone${dragOver ? " dragover" : ""}`}
+                onClick={() => bgFileRef.current?.click()}
+              >
+                <i className="bi bi-cloud-arrow-up" />
+                <span>{t("settings.dropBg")}</span>
+                <input ref={bgFileRef} type="file" accept=".png,.jpg,.jpeg,.webp" multiple onChange={onBgFilePick} />
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.backgrounds")}</label>
+                <div id="cfg-bg-list">
+                  {backgrounds.length === 0 && <div className="gp-no-gamepad-msg">{t("settings.noBackgrounds")}</div>}
+                  {backgrounds.map((bg) => (
+                    <div key={bg.file} className="bg-item">
+                      <div className="bg-item-thumb" style={`background-image:url("${bgUrls[bg.file] || ""}")`} />
+                      <div className="bg-item-info">
+                        <span className="bg-item-name" title={bg.file}>{bg.file}</span>
+                        <div className="bg-item-pos">
+                          {POS_OPTIONS.map((opt) => (
+                            <button key={opt.v || "center"}
+                              className={`bg-pos-btn${bg.position === opt.v ? " active" : ""}`}
+                              onClick={() => onSetBgPosition(bg.file, opt.v)}>
+                              {t(opt.k)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <button className="bg-del-btn" title={t("settings.bgDelete")}
+                        onClick={() => onDeleteBg(bg.file)}>
+                        <i className="bi bi-trash3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="settings-group">
-              <label>{t("settings.gamepadBindings")}</label>
-              <div id="cfg-gamepad">
-                {!gpConnected && <div className="gp-no-gamepad-msg">{t("settings.noGamepad")}</div>}
-                {gpConnected && Object.entries(ACTION_LABELS).map(([action, label]) => (
-                  <div key={action} className={`gp-row${gpListening === action ? " listening" : ""}`}
-                    onClick={() => onSetGpListening(gpListening === action ? null : action)}>
-                    <span className="gp-label">{t(label)}</span>
-                    <span className="gp-value">{gpListening === action ? "..." : formatGpBinding(gamepadMap[action])}</span>
-                  </div>
-                ))}
+          )}
+          {tab === "bindings" && (
+            <div className="settings-col settings-col-narrow">
+              <div className="settings-group">
+                <label>{t("settings.keybindings")}</label>
+                <div id="cfg-keys">
+                  {Object.entries(ACTION_LABELS).map(([action, label]) => (
+                    <div key={action} className={`key-row${keyListening === action ? " listening" : ""}`}
+                      onClick={() => onSetKeyListening(keyListening === action ? null : action)}>
+                      <span className="key-label">{t(label)}</span>
+                      <span className="key-value">{keyListening === action ? "..." : (keyMap[action] || "")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.gamepadBindings")}</label>
+                <div id="cfg-gamepad">
+                  {!gpConnected && <div className="gp-no-gamepad-msg">{t("settings.noGamepad")}</div>}
+                  {gpConnected && Object.entries(ACTION_LABELS).map(([action, label]) => (
+                    <div key={action} className={`gp-row${gpListening === action ? " listening" : ""}`}
+                      onClick={() => onSetGpListening(gpListening === action ? null : action)}>
+                      <span className="gp-label">{t(label)}</span>
+                      <span className="gp-value">{gpListening === action ? "..." : formatGpBinding(gamepadMap[action])}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="settings-footer">
           <button className="settings-primary" onClick={onSave}>{t("settings.save")}</button>
