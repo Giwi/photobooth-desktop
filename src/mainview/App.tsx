@@ -60,6 +60,7 @@ export function App() {
   const selectedBgRef = useRef(selectedBg);
   const watermarkRef = useRef(watermark);
   const settingsOpenRef = useRef(settingsOpen);
+  const backgroundsRef = useRef(backgrounds);
   const liveCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const compCtxRef = useRef<CanvasRenderingContext2D | null>(null);
 
@@ -70,6 +71,7 @@ export function App() {
   showPreviewRef.current = showPreview;
   mirrorModeRef.current = mirrorMode;
   selectedBgRef.current = selectedBg;
+  backgroundsRef.current = backgrounds;
   watermarkRef.current = watermark;
   settingsOpenRef.current = settingsOpen;
 
@@ -195,12 +197,14 @@ export function App() {
     else if (action === "print") { if (showPreviewRef.current) actionResolverRef.current?.("print"); }
     else if (action === "cancel") { if (showPreviewRef.current) actionResolverRef.current?.("cancel"); }
     else if (action === "prevBg") {
-      if (!busyRef.current && backgrounds.length)
-        setSelectedBg((i) => (i - 1 + backgrounds.length) % backgrounds.length);
+      const len = backgroundsRef.current.length;
+      if (!busyRef.current && len)
+        setSelectedBg((i) => (i - 1 + len) % len);
     }
     else if (action === "nextBg") {
-      if (!busyRef.current && backgrounds.length)
-        setSelectedBg((i) => (i + 1) % backgrounds.length);
+      const len = backgroundsRef.current.length;
+      if (!busyRef.current && len)
+        setSelectedBg((i) => (i + 1) % len);
     }
     else if (action === "mirror") setMirrorMode((m) => !m);
     else if (action === "strip") setStripMode((s) => !s);
@@ -310,7 +314,7 @@ export function App() {
       drawVideoCrop(compCtx, video);
     }
     if (bgReadyRef.current && bgImageRef.current) {
-      const bg = backgrounds[selectedBgRef.current];
+      const bg = backgroundsRef.current[selectedBgRef.current];
       drawBgTo(compCtx, bgImageRef.current, W, H, bg?.position || null);
     }
     if (watermarkRef.current) drawWatermark(compCtx, watermarkRef.current);
@@ -350,7 +354,7 @@ export function App() {
         drawVideoCrop(compCtx, video);
       }
       if (bgReadyRef.current && bgImageRef.current) {
-        const bg = backgrounds[selectedBgRef.current];
+        const bg = backgroundsRef.current[selectedBgRef.current];
         drawBgTo(compCtx, bgImageRef.current, W, H, bg?.position || null);
       }
       if (watermarkRef.current) drawWatermark(compCtx, watermarkRef.current);
