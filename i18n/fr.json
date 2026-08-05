@@ -43,6 +43,8 @@
   "theme.lightBlue": "Bleu clair",
   "theme.lightGreen": "Vert clair",
   "settings.watermark": "Filigrane",
+  "settings.webcam": "Webcam",
+  "settings.countdown": "Compte à rebours",
   "settings.keybindings": "Raccourcis clavier",
   "settings.gamepadBindings": "Manette",
   "settings.noGamepad": "Aucune manette connectée",

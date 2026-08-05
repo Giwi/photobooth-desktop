@@ -43,6 +43,8 @@
   "theme.lightBlue": "Light blue",
   "theme.lightGreen": "Light green",
   "settings.watermark": "Watermark",
+  "settings.webcam": "Webcam",
+  "settings.countdown": "Countdown",
   "settings.keybindings": "Key bindings",
   "settings.gamepadBindings": "Gamepad",
   "settings.noGamepad": "No gamepad connected",

@@ -43,6 +43,8 @@
   "theme.lightBlue": "Azul claro",
   "theme.lightGreen": "Verde claro",
   "settings.watermark": "Marca de agua",
+  "settings.webcam": "Webcam",
+  "settings.countdown": "Cuenta atrás",
   "settings.keybindings": "Atajos de teclado",
   "settings.gamepadBindings": "Mando",
   "settings.noGamepad": "No hay mando conectado",
