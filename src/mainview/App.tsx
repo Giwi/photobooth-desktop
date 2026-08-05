@@ -578,6 +578,7 @@ export function App() {
         onToggleMirror={() => setMirrorMode((m) => !m)}
         onToggleStrip={() => setStripMode((s) => !s)}
         onToggleHelp={() => setHelpOpen((h) => !h)}
+        onToggleFullscreen={() => rpc.request.toggleFullscreen()}
         onOpenAbout={() => setAboutOpen(true)}
         onOpenSettings={() => setSettingsOpen(true)}
       />

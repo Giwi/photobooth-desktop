@@ -10,13 +10,14 @@ interface Props {
   onToggleMirror: () => void;
   onToggleStrip: () => void;
   onToggleHelp: () => void;
+  onToggleFullscreen: () => void;
   onOpenAbout: () => void;
   onOpenSettings: () => void;
 }
 
 export function SettingsBar({
   mirrorMode, stripMode, helpOpen, keyMap, t,
-  onToggleMirror, onToggleStrip, onToggleHelp, onOpenAbout, onOpenSettings,
+  onToggleMirror, onToggleStrip, onToggleHelp, onToggleFullscreen, onOpenAbout, onOpenSettings,
 }: Props) {
   return (
     <div id="settings">
@@ -45,6 +46,9 @@ export function SettingsBar({
           </div>
         )}
       </div>
+      <button className="setting-btn" onClick={(e) => { e.stopPropagation(); onToggleFullscreen(); }} title={t("title.fullscreen")}>
+        <i class="bi bi-arrows-fullscreen" />
+      </button>
       <button className="setting-btn" onClick={(e) => { e.stopPropagation(); onOpenSettings(); }} title={t("title.settings")}>
         <i class="bi bi-gear" />
       </button>

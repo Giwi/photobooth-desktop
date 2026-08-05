@@ -291,8 +291,14 @@ register("appReady", () => {
 
 register("bgProgress", ({ progress, name }: { progress: number; name: string }) => {
   if (splashWindow && !splashWindow.isDestroyed()) {
-    splashWindow.webContents.send("bgProgress", { progress, name });
-  }
+    splashWindow.webContents.send("bgProgress", { progress, name });  }
+  return { ok: true };
+});
+
+register("toggleFullscreen", () => {
+  const win = mainWindow ?? BrowserWindow.getFocusedWindow();
+  if (!win) return { ok: false };
+  win.setFullScreen(!win.isFullScreen());
   return { ok: true };
 });
 
