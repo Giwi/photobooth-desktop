@@ -15,6 +15,8 @@ interface Props {
   onOpenSettings: () => void;
 }
 
+// Bottom-right control pill: mirror, strip, keyboard help, fullscreen,
+// settings and about.
 export function SettingsBar({
   mirrorMode, stripMode, helpOpen, keyMap, t,
   onToggleMirror, onToggleStrip, onToggleHelp, onToggleFullscreen, onOpenAbout, onOpenSettings,

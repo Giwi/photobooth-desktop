@@ -5,6 +5,8 @@ interface Props {
   onClose: () => void;
 }
 
+// Modal "About" dialog: app info, version and external links. Links open in
+// the default browser via the main-process window-open handler.
 export function AboutOverlay({ t, onClose }: Props) {
   return (
     <div id="about-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>

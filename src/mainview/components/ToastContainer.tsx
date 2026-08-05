@@ -6,6 +6,7 @@ interface Toast {
   type: string;
 }
 
+// Renders transient notifications stacked bottom-left.
 export function ToastContainer({ toasts }: { toasts: Toast[] }) {
   return (
     <div id="toasts">

@@ -39,6 +39,8 @@ const POS_OPTIONS: { v: string | null; k: string }[] = [
   { v: "bottom", k: "settings.posBottom" },
 ];
 
+// Modal settings panel with three tabs (general / background / bindings).
+// All mutations are lifted to App via callbacks; file reads happen locally.
 export function SettingsOverlay({
   settingsLang, watermark, cameras, currentDeviceId, countdownDuration,
   backgrounds, bgUrls, keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
@@ -51,16 +53,19 @@ export function SettingsOverlay({
   const [tab, setTab] = useState<"general" | "background" | "bindings">("general");
   const [dragOver, setDragOver] = useState(false);
 
+  // Keep the watermark input in sync with the saved value.
   useEffect(() => {
     if (watermarkRef.current) watermarkRef.current.value = watermark || "";
   }, [watermark]);
 
+  // Reads a dropped/picked background file into a data URL for import.
   const handleBgFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => { if (reader.result) onImportBg(file.name, reader.result as string); };
     reader.readAsDataURL(file);
   };
 
+  // Reads a settings backup (.json) picked from disk.
   const onImportFilePick = (e: Event) => {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -72,6 +77,7 @@ export function SettingsOverlay({
     input.value = "";
   };
 
+  // Drag & drop of background images onto the overlay.
   const onDropBg = (e: DragEvent) => {
     e.preventDefault();
     setDragOver(false);

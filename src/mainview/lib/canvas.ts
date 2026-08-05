@@ -1,5 +1,7 @@
 import { W, H } from "./constants";
 
+// Parses a background position string ("top", "left bottom", "40%"...) into
+// normalized (0..1) anchor coordinates. Defaults to center.
 export function parsePosition(pos: string | null): { x: number; y: number } {
   if (!pos) return { x: 0.5, y: 0.5 };
   const parts = pos.trim().split(/\s+/);
@@ -17,6 +19,8 @@ export function parsePosition(pos: string | null): { x: number; y: number } {
   return { x, y };
 }
 
+// Fills the canvas with the background image, cover-fit and anchored at the
+// requested position (so e.g. "top" shows the top of a tall backdrop).
 export function drawBgTo(c: CanvasRenderingContext2D, img: HTMLImageElement, cw: number, ch: number, position: string | null) {
   const iw = img.naturalWidth || img.width;
   const ih = img.naturalHeight || img.height;
@@ -26,6 +30,7 @@ export function drawBgTo(c: CanvasRenderingContext2D, img: HTMLImageElement, cw:
   c.drawImage(img, (cw - sw) * x, (ch - sh) * y, sw, sh);
 }
 
+// Center-crops the live video to the fixed capture aspect ratio (cover-fit).
 export function drawVideoCrop(c: CanvasRenderingContext2D, video: HTMLVideoElement) {
   const vw = video.videoWidth, vh = video.videoHeight;
   const scale = Math.max(W / vw, H / vh);
@@ -33,6 +38,7 @@ export function drawVideoCrop(c: CanvasRenderingContext2D, video: HTMLVideoEleme
   c.drawImage(video, (W - sw) / 2, (H - sh) / 2, sw, sh);
 }
 
+// Draws the watermark as a semi-transparent bar along the bottom edge.
 export function drawWatermark(c: CanvasRenderingContext2D, wm: string) {
   c.save();
   const fontSize = Math.round(W / 30);
@@ -48,6 +54,7 @@ export function drawWatermark(c: CanvasRenderingContext2D, wm: string) {
   c.restore();
 }
 
+// Encodes composited pixels into a PNG data URL for saving / previewing.
 export function frameToDataUrl(imageData: ImageData): string {
   const c = document.createElement("canvas");
   c.width = W; c.height = H;
@@ -55,6 +62,7 @@ export function frameToDataUrl(imageData: ImageData): string {
   return c.toDataURL("image/png");
 }
 
+// Builds a 2x2 photo strip from up to 4 frames, each halved into a quadrant.
 export function createStrip(frames: ImageData[]): string {
   const gap = 2, cw = W / 2, ch = H / 2;
   const c = document.createElement("canvas");

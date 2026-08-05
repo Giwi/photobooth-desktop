@@ -13,6 +13,8 @@ interface Props {
   bgUrls: Record<string, string>;
 }
 
+// Horizontal background picker along the top. Index 0 is always the
+// "no background" slot (null), followed by the imported images.
 export function BackgroundsBar({ backgrounds, selected, onSelect, bgUrls }: Props) {
   return (
     <div id="backgrounds">

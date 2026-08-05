@@ -14,7 +14,8 @@ import { AboutOverlay } from "./components/AboutOverlay";
 import { ToastContainer } from "./components/ToastContainer";
 import { ClickAway } from "./components/ClickAway";
 
-// --- RPC (shared singleton, bridged to the Electron main process) ---
+// Root component: owns all app state and wires the child components to the
+// Electron main process through the typed rpc bridge.
 export function App() {
   // --- State ---
   const [bgFiles, setBgFiles] = useState<{ file: string; position: string | null }[]>([]);
@@ -46,6 +47,8 @@ export function App() {
   const backgrounds = [null, ...bgFiles];
 
   // --- Refs ---
+  // Mirrors of state for use inside event handlers / rAF loops. Directly
+  // reading state there would see stale values (closures over old renders).
   const videoRef = useRef<HTMLVideoElement>(null);
   const liveCanvasRef = useRef<HTMLCanvasElement>(null);
   const compositorRef = useRef<HTMLCanvasElement>(null);

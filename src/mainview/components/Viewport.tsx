@@ -14,6 +14,8 @@ interface Props {
   onPreviewAction: (action: string) => void;
 }
 
+// Renders the stage: live webcam + background overlay canvas, the offscreen
+// compositor, countdown, flash, and the post-capture preview with actions.
 export function Viewport({
   videoRef, liveCanvasRef, compositorRef,
   countdownNum, flashActive, showPreview, previewSrc, busy, t, onPreviewAction,
@@ -24,6 +26,7 @@ export function Viewport({
         <video ref={videoRef} id="video" autoplay playsinline muted />
         <canvas ref={liveCanvasRef} id="live-canvas" />
       </div>
+      {/* Offscreen: final image is composed here, hidden from view */}
       <canvas ref={compositorRef} id="compositor" hidden />
       {countdownNum > 0 && <div key={countdownNum} id="countdown" className="animate">{countdownNum}</div>}
       <div id="flash" className={flashActive ? "active" : ""} />
