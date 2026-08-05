@@ -52,8 +52,11 @@ const LANG_OPTIONS: { id: string; label: string }[] = [
 const THEMES: { id: string; k: string }[] = [
   { id: "dark-violet", k: "theme.darkViolet" },
   { id: "dark-orange", k: "theme.darkOrange" },
+  { id: "dark-cyan", k: "theme.darkCyan" },
+  { id: "dark-graphite", k: "theme.darkGraphite" },
   { id: "light-blue", k: "theme.lightBlue" },
   { id: "light-green", k: "theme.lightGreen" },
+  { id: "light-rose", k: "theme.lightRose" },
 ];
 
 // Modal settings panel with three tabs (general / background / bindings).
