@@ -4,6 +4,7 @@
   "description": "Photobooth desktop app (Electron)",
   "license": "Apache-2.0",
   "main": "dist/main.cjs",
+  "desktopName": "Photobooth",
   "scripts": {
     "electron:build": "bash scripts/build-electron.sh",
     "electron:dev": "bash scripts/build-electron.sh && electron .",
@@ -32,10 +33,11 @@
     ],
     "linux": {
       "target": ["deb", "rpm", "AppImage"],
-      "icon": "src/mainview/assets/icon.png",
+      "icon": "build/icons",
       "category": "Graphics",
       "maintainer": "GiwiSoft",
-      "synopsis": "Webcam photobooth for events and weddings"
+      "synopsis": "Webcam photobooth for events and weddings",
+      "syncDesktopName": true
     },
     "win": {
       "target": ["nsis"],
