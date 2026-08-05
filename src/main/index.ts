@@ -110,6 +110,7 @@ register("getConfig", () => {
 
   const bgConfig = cfg.backgrounds || {};
   const lang = cfg.lang || "en";
+  const theme = cfg.theme || "dark-violet";
   const translations = i18n[lang] || i18n.en;
 
   return {
@@ -121,6 +122,7 @@ register("getConfig", () => {
     keys: cfg.keys || null,
     gamepad: cfg.gamepad || null,
     lang,
+    theme,
     i18n: translations,
   };
 });
@@ -157,14 +159,15 @@ register("savePhoto", async ({ image, print }: { image: string; print: boolean }
   }
 });
 
-register("saveConfig", ({ lang, watermark, keys, gamepad }: {
-  lang?: string; watermark?: string | null; keys?: Record<string, string>; gamepad?: Record<string, unknown>;
+register("saveConfig", ({ lang, watermark, keys, gamepad, theme }: {
+  lang?: string; watermark?: string | null; keys?: Record<string, string>; gamepad?: Record<string, unknown>; theme?: string;
 }) => {
   const cfg = readConfig();
   if (lang !== undefined) cfg.lang = lang;
   if (watermark !== undefined) cfg.watermark = watermark;
   if (keys !== undefined) cfg.keys = keys;
   if (gamepad !== undefined) cfg.gamepad = gamepad;
+  if (theme !== undefined) cfg.theme = theme;
   writeConfig(cfg);
   return { ok: true };
 });

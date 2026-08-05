@@ -28,6 +28,8 @@ export function App() {
   const [gamepadMap, setGamepadMap] = useState(DEFAULT_GP_MAP);
   const [currentLang, setCurrentLang] = useState("en");
   const [i18n, setI18n] = useState<Record<string, string>>({});
+  const [theme, setTheme] = useState("dark-violet");
+  const [settingsTheme, setSettingsTheme] = useState("dark-violet");
   const [busy, setBusy] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewSrc, setPreviewSrc] = useState("");
@@ -180,6 +182,7 @@ export function App() {
         if (config.keys) setKeyMap((prev) => ({ ...prev, ...config.keys! }));
         if (config.gamepad) setGamepadMap((prev) => ({ ...prev, ...config.gamepad! }));
         if (config.lang) setCurrentLang(config.lang);
+        if (config.theme) { setTheme(config.theme); setSettingsTheme(config.theme); }
         if (config.i18n) setI18n(config.i18n);
         await reloadBgs();
 
@@ -471,17 +474,24 @@ export function App() {
   useEffect(() => {
     if (settingsOpen) {
       setSettingsLang(currentLang);
+      setSettingsTheme(theme);
       setGpListening(null);
       setKeyListening(null);
     }
   }, [settingsOpen, currentLang, watermark]);
 
+  // --- Theme ---
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
   // --- Settings save ---
   async function saveSettings() {
     setWatermark(watermark);
     setCurrentLang(settingsLang);
+    setTheme(settingsTheme);
     await rpc.request.saveConfig({
-      lang: settingsLang, watermark, keys: keyMap, gamepad: gamepadMap,
+      lang: settingsLang, watermark, keys: keyMap, gamepad: gamepadMap, theme: settingsTheme,
     });
     const config = await rpc.request.getConfig();
     if (config.i18n) setI18n(config.i18n);
@@ -592,12 +602,14 @@ export function App() {
 
       {settingsOpen && (
         <SettingsOverlay
-          currentLang={currentLang} settingsLang={settingsLang} watermark={watermark}
+          currentLang={currentLang} settingsLang={settingsLang} settingsTheme={settingsTheme}
+          watermark={watermark}
           cameras={cameras} currentDeviceId={currentDeviceId} countdownDuration={countdownDuration}
           backgrounds={bgFiles} bgUrls={bgUrls}
           keyMap={keyMap} gamepadMap={gamepadMap} keyListening={keyListening}
           gpListening={gpListening} gpConnected={gpConnected} t={t}
-          onSetSettingsLang={setSettingsLang} onSetCountdownDuration={setCountdownDuration}
+          onSetSettingsLang={setSettingsLang} onSetSettingsTheme={setSettingsTheme}
+          onSetCountdownDuration={setCountdownDuration}
           onSwitchCamera={switchCamera} onSetKeyListening={setKeyListening}
           onSetGpListening={setGpListening} onSave={saveSettings}
           onImportBg={importBackground}

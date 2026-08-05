@@ -2,10 +2,12 @@ import { h } from "preact";
 import { useRef, useEffect, useState } from "preact/hooks";
 import { ACTION_LABELS } from "../lib/constants";
 import { formatGpBinding } from "../lib/utils";
+import { Select } from "./Select";
 
 interface Props {
   currentLang: string;
   settingsLang: string;
+  settingsTheme: string;
   watermark: string | null;
   cameras: { id: string; label: string }[];
   currentDeviceId: string | null;
@@ -19,6 +21,7 @@ interface Props {
   gpConnected: boolean;
   t: (key: string) => string;
   onSetSettingsLang: (lang: string) => void;
+  onSetSettingsTheme: (theme: string) => void;
   onSetCountdownDuration: (d: number) => void;
   onSwitchCamera: (id: string) => void;
   onSetKeyListening: (action: string | null) => void;
@@ -39,12 +42,26 @@ const POS_OPTIONS: { v: string | null; k: string }[] = [
   { v: "bottom", k: "settings.posBottom" },
 ];
 
+const LANG_OPTIONS: { id: string; label: string }[] = [
+  { id: "en", label: "English" },
+  { id: "fr", label: "Français" },
+  { id: "de", label: "Deutsch" },
+  { id: "es", label: "Español" },
+];
+
+const THEMES: { id: string; k: string }[] = [
+  { id: "dark-violet", k: "theme.darkViolet" },
+  { id: "dark-orange", k: "theme.darkOrange" },
+  { id: "light-blue", k: "theme.lightBlue" },
+  { id: "light-green", k: "theme.lightGreen" },
+];
+
 // Modal settings panel with three tabs (general / background / bindings).
 // All mutations are lifted to App via callbacks; file reads happen locally.
 export function SettingsOverlay({
-  settingsLang, watermark, cameras, currentDeviceId, countdownDuration,
+  settingsLang, settingsTheme, watermark, cameras, currentDeviceId, countdownDuration,
   backgrounds, bgUrls, keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
-  onSetSettingsLang, onSetCountdownDuration, onSwitchCamera,
+  onSetSettingsLang, onSetSettingsTheme, onSetCountdownDuration, onSwitchCamera,
   onSetKeyListening, onSetGpListening, onImportBg, onPickBg, onExportSettings, onImportSettings,
   onDeleteBg, onSetBgPosition, onSave, onClose,
 }: Props) {
@@ -115,15 +132,18 @@ export function SettingsOverlay({
         <div className="settings-body">
           {tab === "general" && (
             <div className="settings-col">
-              <div className="settings-group">
-                <label>{t("settings.language")}</label>
-                <div id="cfg-lang">
-                  {["en", "fr", "de", "es"].map((lang) => (
-                    <button key={lang} className={`lang-btn${settingsLang === lang ? " active" : ""}`}
-                      onClick={() => onSetSettingsLang(lang)}>
-                      {lang.toUpperCase()}
-                    </button>
-                  ))}
+              <div className="settings-row">
+                <div className="settings-group">
+                  <label>{t("settings.language")}</label>
+                  <Select value={settingsLang} options={LANG_OPTIONS} onChange={onSetSettingsLang} />
+                </div>
+                <div className="settings-group">
+                  <label>{t("settings.theme")}</label>
+                  <Select
+                    value={settingsTheme}
+                    options={THEMES.map((th) => ({ value: th.id, label: t(th.k) }))}
+                    onChange={onSetSettingsTheme}
+                  />
                 </div>
               </div>
               <div className="settings-group">

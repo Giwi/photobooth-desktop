@@ -26,6 +26,7 @@ type Requests = {
       keys: Record<string, string> | null;
       gamepad: Record<string, any> | null;
       lang: string;
+      theme: string;
       i18n: Record<string, string>;
     };
   };
@@ -37,6 +38,7 @@ type Requests = {
       watermark?: string | null;
       keys?: Record<string, string>;
       gamepad?: Record<string, unknown>;
+      theme?: string;
     };
     response: { ok: boolean };
   };
