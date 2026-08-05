@@ -10,6 +10,7 @@ import { BackgroundsBar } from "./components/BackgroundsBar";
 import { Viewport } from "./components/Viewport";
 import { SettingsBar } from "./components/SettingsBar";
 import { SettingsOverlay } from "./components/SettingsOverlay";
+import { AboutOverlay } from "./components/AboutOverlay";
 import { ToastContainer } from "./components/ToastContainer";
 import { ClickAway } from "./components/ClickAway";
 
@@ -31,6 +32,7 @@ export function App() {
   const [previewSrc, setPreviewSrc] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [toasts, setToasts] = useState<{ id: number; msg: string; type: string }[]>([]);
   const [cameras, setCameras] = useState<{ id: string; label: string }[]>([]);
   const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
@@ -576,6 +578,7 @@ export function App() {
         onToggleMirror={() => setMirrorMode((m) => !m)}
         onToggleStrip={() => setStripMode((s) => !s)}
         onToggleHelp={() => setHelpOpen((h) => !h)}
+        onOpenAbout={() => setAboutOpen(true)}
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
@@ -604,6 +607,8 @@ export function App() {
       )}
 
       {helpOpen && <ClickAway onClick={() => setHelpOpen(false)} />}
+
+      {aboutOpen && <AboutOverlay t={t} onClose={() => setAboutOpen(false)} />}
     </>
   );
 }

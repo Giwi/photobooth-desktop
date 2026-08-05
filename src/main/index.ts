@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, session, dialog, Menu, shell } from "electron";
 import {
   readFileSync,
   readdirSync,
@@ -331,6 +331,17 @@ function createWindow() {
 
   mainWindow.loadFile(join(DIST_DIR, "renderer", "index.html"));
 
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:/i.test(url)) shell.openExternal(url);
+    return { action: "deny" };
+  });
+  mainWindow.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) {
+      event.preventDefault();
+      if (/^https?:/i.test(url)) shell.openExternal(url);
+    }
+  });
+
   setTimeout(() => {
     closeSplash();
     mainWindow?.show();
@@ -348,6 +359,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null);
   // Allow webcam/mic access (kiosk app, no UI prompt possible)
   session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => {
     callback(permission === "media" || permission === "mediaKeySystem");

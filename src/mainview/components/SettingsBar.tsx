@@ -10,12 +10,13 @@ interface Props {
   onToggleMirror: () => void;
   onToggleStrip: () => void;
   onToggleHelp: () => void;
+  onOpenAbout: () => void;
   onOpenSettings: () => void;
 }
 
 export function SettingsBar({
   mirrorMode, stripMode, helpOpen, keyMap, t,
-  onToggleMirror, onToggleStrip, onToggleHelp, onOpenSettings,
+  onToggleMirror, onToggleStrip, onToggleHelp, onOpenAbout, onOpenSettings,
 }: Props) {
   return (
     <div id="settings">
@@ -46,6 +47,9 @@ export function SettingsBar({
       </div>
       <button className="setting-btn" onClick={(e) => { e.stopPropagation(); onOpenSettings(); }} title={t("title.settings")}>
         <i class="bi bi-gear" />
+      </button>
+      <button className="setting-btn" onClick={(e) => { e.stopPropagation(); onOpenAbout(); }} title={t("about.title")}>
+        <i class="bi bi-info-circle" />
       </button>
     </div>
   );
