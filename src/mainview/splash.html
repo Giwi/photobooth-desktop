@@ -35,7 +35,7 @@
     }
     .progress-fill {
       height: 100%;
-      background: #4caf50;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
       width: 0%;
       transition: width 0.3s ease;
     }
@@ -54,7 +54,7 @@
       bgNameEl.textContent = data.name;
       progressFillEl.style.width = `${data.progress}%`;
       if (data.name === "Done") {
-        progressFillEl.style.background = "#4caf50";
+        progressFillEl.style.background = "linear-gradient(90deg, #8b5cf6, #ec4899)";
         bgNameEl.style.fontWeight = "bold";
       }
     });
