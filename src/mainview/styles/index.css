@@ -1270,13 +1270,13 @@ footer a:hover {
 }
 
 .about-logo {
-  font-size: 3rem;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-pink) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 16px var(--accent-glow));
   margin-bottom: 16px;
+}
+.about-logo img {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  filter: drop-shadow(0 4px 16px var(--accent-glow));
 }
 
 .about-body h3 {

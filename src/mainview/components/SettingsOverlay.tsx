@@ -22,6 +22,7 @@ interface Props {
   t: (key: string) => string;
   onSetSettingsLang: (lang: string) => void;
   onSetSettingsTheme: (theme: string) => void;
+  onSetWatermark: (text: string) => void;
   onSetCountdownDuration: (d: number) => void;
   onSwitchCamera: (id: string) => void;
   onSetKeyListening: (action: string | null) => void;
@@ -64,7 +65,7 @@ const THEMES: { id: string; k: string }[] = [
 export function SettingsOverlay({
   settingsLang, settingsTheme, watermark, cameras, currentDeviceId, countdownDuration,
   backgrounds, bgUrls, keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
-  onSetSettingsLang, onSetSettingsTheme, onSetCountdownDuration, onSwitchCamera,
+  onSetSettingsLang, onSetSettingsTheme, onSetWatermark, onSetCountdownDuration, onSwitchCamera,
   onSetKeyListening, onSetGpListening, onImportBg, onPickBg, onExportSettings, onImportSettings,
   onDeleteBg, onSetBgPosition, onSave, onClose,
 }: Props) {
@@ -174,7 +175,8 @@ export function SettingsOverlay({
               </div>
               <div className="settings-group">
                 <label>{t("settings.watermark")}</label>
-                <input type="text" ref={watermarkRef} placeholder="e.g. 2026-01-01" />
+                <input type="text" ref={watermarkRef} placeholder="e.g. 2026-01-01"
+                  onChange={(e) => onSetWatermark((e.target as HTMLInputElement).value)} />
               </div>
               <div className="settings-group">
                 <label>{t("settings.backup")}</label>

@@ -609,6 +609,7 @@ export function App() {
           keyMap={keyMap} gamepadMap={gamepadMap} keyListening={keyListening}
           gpListening={gpListening} gpConnected={gpConnected} t={t}
           onSetSettingsLang={setSettingsLang} onSetSettingsTheme={setSettingsTheme}
+          onSetWatermark={setWatermark}
           onSetCountdownDuration={setCountdownDuration}
           onSwitchCamera={switchCamera} onSetKeyListening={setKeyListening}
           onSetGpListening={setGpListening} onSave={saveSettings}

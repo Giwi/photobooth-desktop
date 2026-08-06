@@ -19,7 +19,7 @@ export function AboutOverlay({ t, onClose }: Props) {
         </div>
         <div className="about-body">
           <div className="about-logo">
-            <i class="bi bi-camera-fill" />
+            <img src="./icon.png" alt="" />
           </div>
           <h3>Photobooth Desktop</h3>
           <p className="about-version">v0.0.3</p>
@@ -32,7 +32,7 @@ export function AboutOverlay({ t, onClose }: Props) {
               <i class="bi bi-github" /> GitHub
             </a>
           </div>
-          <p className="about-copyright">© 2024 GiwiSoft</p>
+          <p className="about-copyright">© 2026 GiwiSoft</p>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "description": "Photobooth desktop app (Electron)",
   "license": "Apache-2.0",
+  "author": "GiwiSoft",
   "main": "dist/main.cjs",
   "desktopName": "Photobooth",
   "scripts": {
