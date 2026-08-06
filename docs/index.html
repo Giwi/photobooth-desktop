@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Photobooth Desktop - a webcam photobooth for events and weddings</title>
+  <meta name="description" content="Photobooth Desktop: a cross-platform desktop photobooth app with live webcam feed, background overlays, photo strip mode, countdown capture, mirror mode and gamepad support." />
+  <meta property="og:title" content="Photobooth Desktop" />
+  <meta property="og:description" content="A desktop photobooth for events and weddings: live webcam, backgrounds, photo strips, gamepad support." />
+  <meta property="og:image" content="assets/shots/main-violet.jpg" />
+  <link rel="icon" type="image/png" href="assets/icon.png" />
+  <link rel="stylesheet" href="assets/bootstrap-icons.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a13; --text: #f4f4f8; --muted: rgba(244,244,248,.6);
+      --accent: #a78bfa; --accent-strong: #8b5cf6; --pink: #ec4899;
+      --card: rgba(255,255,255,.045); --card-hover: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.09); --border-strong: rgba(255,255,255,.16);
+      --radius: 18px;
+      --grad: radial-gradient(900px 600px at 78% -12%, rgba(124,58,237,.32), transparent),
+              radial-gradient(700px 520px at -10% 108%, rgba(236,72,153,.18), transparent);
+      --shadow: 0 24px 50px rgba(0,0,0,.45);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); background-image: var(--grad);
+      color: var(--text); font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.6; -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: rgba(139,92,246,.4); }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 999px; border: 2px solid var(--bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-strong); }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    a { color: var(--accent); text-decoration: none; transition: color .15s; }
+    a:hover { text-decoration: underline; }
+
+    header { padding: 96px 0 40px; text-align: center; }
+    .logo { display: inline-flex; }
+    .logo img { width: 96px; height: 96px; border-radius: 24px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 14px 44px rgba(139,92,246,.5); }
+    h1 { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; margin: 22px 0 12px;
+      background: linear-gradient(135deg, #fff, var(--accent) 55%, var(--pink));
+      -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .tagline { font-size: 1.15rem; color: var(--muted); max-width: 680px; margin: 0 auto; }
+    .badges { margin: 24px 0 8px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .badge { font-size: .78rem; padding: 5px 14px; border-radius: 999px; letter-spacing: .02em;
+      border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--muted);
+      display: inline-flex; align-items: center; gap: 7px; }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--pink)); }
+    .cta { margin: 32px 0 8px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 28px; border-radius: 999px;
+      font-weight: 600; border: 1px solid var(--border); color: var(--text);
+      background: rgba(255,255,255,.05); transition: all .18s ease; }
+    .btn:hover { text-decoration: none; transform: translateY(-1px);
+      background: var(--accent-strong); border-color: var(--accent-strong); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn.primary { background: linear-gradient(135deg, var(--accent-strong), var(--pink));
+      border: none; color: #fff; box-shadow: 0 8px 30px rgba(139,92,246,.4); }
+    .btn.primary:hover { filter: brightness(1.08); }
+
+    section { padding: 72px 0; }
+    section + section { border-top: 1px solid var(--border); }
+    h2 { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
+    .eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px; }
+    .sub { color: var(--muted); margin-bottom: 36px; max-width: 720px; }
+
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .feat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease; }
+    .feat:hover { transform: translateY(-3px); background: var(--card-hover);
+      border-color: var(--border-strong); box-shadow: var(--shadow); }
+    .ico-chip { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center;
+      font-size: 1.35rem; color: #fff; margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--accent-strong), var(--pink));
+      box-shadow: 0 8px 20px rgba(139,92,246,.35); }
+    .feat h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .feat p { font-size: .92rem; color: var(--muted); }
+
+    .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .shot { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border);
+      background: var(--card); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .shot:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-strong); }
+    .shot img { display: block; width: 100%; height: auto; transition: transform .4s ease; }
+    .shot:hover img { transform: scale(1.03); }
+    .shot figcaption { padding: 14px 18px; font-size: .9rem; color: var(--muted); }
+    .shot figcaption b { color: var(--text); font-weight: 600; }
+
+    .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+    .theme img { width: 100%; border-radius: 14px; border: 1px solid var(--border); display: block;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .theme:hover img { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent); }
+    .theme p { font-size: .82rem; color: var(--muted); text-align: center; margin-top: 8px; font-weight: 500; }
+
+    .steps { counter-reset: s; display: grid; gap: 14px; }
+    .step { display: flex; gap: 16px; background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 22px; transition: border-color .18s ease; }
+    .step:hover { border-color: var(--border-strong); }
+    .step::before { counter-increment: s; content: counter(s); flex: none; width: 32px; height: 32px;
+      border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .9rem;
+      background: linear-gradient(135deg, var(--accent-strong), var(--pink)); color: #fff;
+      box-shadow: 0 6px 16px rgba(139,92,246,.35); }
+    .step-body { display: flex; flex-direction: column; gap: 8px; }
+    .step code { background: rgba(255,255,255,.08); border: 1px solid var(--border); padding: 3px 10px;
+      border-radius: 8px; font-family: ui-monospace, "Cascadia Code", monospace; font-size: .84em; }
+    .step code:hover { border-color: var(--accent); }
+
+    .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;
+      margin-bottom: 48px; }
+    .dl { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; display: flex; flex-direction: column; gap: 10px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+    .dl:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-strong); }
+    .dl-os { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; }
+    .dl-os i { font-size: 1.3rem; color: var(--accent); }
+    .dl .btn { justify-content: center; }
+
+    .gamepad-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 32px 24px; position: relative; }
+    .gamepad-wrap img { display: block; width: 100%; height: auto; }
+    .gp-chip { position: absolute; transform: translate(-50%, -50%); font-size: .72rem; font-weight: 700;
+      color: var(--text); background: rgba(10,10,19,.9); border: 1px solid var(--accent-strong);
+      padding: 3px 10px; border-radius: 999px; white-space: nowrap; pointer-events: none; z-index: 2;
+      box-shadow: 0 4px 14px rgba(0,0,0,.45); }
+    .gp-chip b { color: var(--accent); }
+    .gamepad-note { color: var(--muted); font-size: .85rem; text-align: center; margin-top: 16px; }
+
+    .shot img, .theme img { cursor: zoom-in; }
+
+    .lightbox { position: fixed; inset: 0; background: rgba(5,5,10,.9); display: none; place-items: center;
+      z-index: 100; cursor: zoom-out; backdrop-filter: blur(4px); }
+    .lightbox.open { display: grid; }
+    .lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 14px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.7); animation: lb-in .25s ease; }
+    @keyframes lb-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+    #lightbox-close { position: fixed; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--border); background: rgba(255,255,255,.06); color: var(--text); font-size: 1.2rem;
+      cursor: pointer; display: grid; place-items: center; transition: background .15s ease, transform .15s ease; }
+    #lightbox-close:hover { background: var(--accent-strong); border-color: var(--accent-strong); transform: scale(1.05); }
+
+    footer { padding: 48px 0 64px; text-align: center; color: var(--muted); font-size: .85rem;
+      margin-top: 24px; border-top: 1px solid var(--border); position: relative; }
+    footer::before { content: ""; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      width: 140px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), var(--pink), transparent); }
+    @media (max-width: 720px) {
+      h1 { font-size: 2.2rem; }
+      .gallery { grid-template-columns: 1fr; }
+      section { padding: 56px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo"><img src="assets/icon.png" alt="Photobooth Desktop" /></div>
+    <h1>Photobooth Desktop</h1>
+    <p class="tagline">A desktop photobooth for events and weddings. Live webcam feed, background overlays, photo strips, countdown capture - with keyboard and gamepad support.</p>
+    <div class="badges">
+      <span class="badge">v0.0.3</span>
+      <span class="badge">Linux · Windows</span>
+      <span class="badge">Apache-2.0</span>
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases" rel="noopener"><i class="bi bi-download"></i> Download</a>
+      <a class="btn" href="https://github.com/Giwi/photobooth-desktop" rel="noopener"><i class="bi bi-github"></i> View source on GitHub</a>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Capabilities</p>
+      <h2>Features</h2>
+      <p class="sub">Everything a photobooth needs, out of the box.</p>
+      <div class="features">
+        <div class="feat"><span class="ico-chip"><i class="bi bi-camera-video"></i></span><h3>Live webcam</h3><p>Real-time preview, camera switching and mirror mode.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-image"></i></span><h3>Background overlays</h3><p>Drop in any image; position it top, center or bottom.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-film"></i></span><h3>Photo strip</h3><p>Classic 4-shot strip in a single picture.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-hourglass-split"></i></span><h3>Countdown capture</h3><p>3, 5 or 10 second countdown with flash.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-printer"></i></span><h3>Print &amp; save</h3><p>Save photos, send them to a printer, or both.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-controller"></i></span><h3>Keyboard &amp; gamepad</h3><p>Full rebinding for guests who prefer buttons.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-droplet"></i></span><h3>Watermark</h3><p>Event name or date stamped on every shot.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-palette"></i></span><h3>7 themes</h3><p>Dark, light, violet, orange, cyan, graphite, rose.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">See it in action</p>
+      <h2>Screenshots</h2>
+      <p class="sub">Live capture, strip mode, preview, settings and more.</p>
+      <div class="gallery">
+        <figure class="shot"><img src="assets/shots/main-violet.jpg" alt="Main photobooth view" loading="lazy" /><figcaption><b>Main view</b> - live webcam with background overlay and top thumbnail bar.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/countdown.jpg" alt="Countdown during capture" loading="lazy" /><figcaption><b>Countdown capture</b> - 3, 5 or 10s timer with a camera flash.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/preview.jpg" alt="Captured photo preview" loading="lazy" /><figcaption><b>Preview</b> - review, save, print or discard each shot.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/strip-mode.jpg" alt="Photo strip mode" loading="lazy" /><figcaption><b>Strip mode</b> - four shots in one classic photo strip.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/mirror-mode.jpg" alt="Mirror mode" loading="lazy" /><figcaption><b>Mirror mode</b> - flip the preview for the classic selfie feel.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/settings-general.jpg" alt="Settings, general tab" loading="lazy" /><figcaption><b>Settings</b> - language, theme, camera, countdown, watermark, backups.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/settings-backgrounds.jpg" alt="Settings, backgrounds tab" loading="lazy" /><figcaption><b>Backgrounds</b> - import images and set their vertical position.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/settings-bindings.jpg" alt="Settings, key bindings tab" loading="lazy" /><figcaption><b>Bindings</b> - remap keyboard and gamepad actions.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/help.jpg" alt="Keyboard shortcuts popup" loading="lazy" /><figcaption><b>Shortcuts</b> - in-app reference for guests.</figcaption></figure>
+        <figure class="shot"><img src="assets/shots/about.jpg" alt="About dialog" loading="lazy" /><figcaption><b>About</b> - version info and project links.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Personalize</p>
+      <h2>Themes</h2>
+      <p class="sub">Seven looks, selectable from Settings → Theme and remembered between runs.</p>
+      <div class="themes">
+        <figure class="theme"><img src="assets/shots/theme-dark-violet.jpg" alt="Dark violet theme" loading="lazy" /><p>Dark violet</p></figure>
+        <figure class="theme"><img src="assets/shots/theme-dark-orange.jpg" alt="Dark orange theme" loading="lazy" /><p>Dark orange</p></figure>
+        <figure class="theme"><img src="assets/shots/theme-dark-cyan.jpg" alt="Dark cyan theme" loading="lazy" /><p>Dark cyan</p></figure>
+        <figure class="theme"><img src="assets/shots/theme-dark-graphite.jpg" alt="Dark graphite theme" loading="lazy" /><p>Dark graphite</p></figure>
+        <figure class="theme"><img src="assets/shots/theme-light-blue.jpg" alt="Light blue theme" loading="lazy" /><p>Light blue</p></figure>
+        <figure class="theme"><img src="assets/shots/theme-light-green.jpg" alt="Light green theme" loading="lazy" /><p>Light green</p></figure>
+        <figure class="theme"><img src="assets/shots/theme-light-rose.jpg" alt="Light rose theme" loading="lazy" /><p>Light rose</p></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Guest friendly</p>
+      <h2>Gamepad controls</h2>
+      <p class="sub">Plug in a Super NES style pad and guests can drive the whole booth without touching the keyboard. Bindings shown are the defaults, re-mappable from Settings - Gamepad.</p>
+      <div class="gamepad-wrap">
+        <img src="assets/snes-controller.svg" alt="Super NES style gamepad with default Photobooth bindings" width="1000" height="600" />
+        <span class="gp-chip" style="left:74%; top:37.8%; transform: translate(-50%,-150%);"><b>Y</b> Print</span>
+        <span class="gp-chip" style="left:67.3%; top:49%; transform: translate(-165%,-50%);"><b>X</b> Save</span>
+        <span class="gp-chip" style="left:82.1%; top:50.5%; transform: translate(40%,-50%);"><b>B</b> Cancel</span>
+        <span class="gp-chip" style="left:75.4%; top:61.8%; transform: translate(-50%,45%);"><b>A</b> Capture</span>
+        <span class="gp-chip" style="left:8%; top:50%; transform: translate(0,-50%);">Prev background</span>
+        <span class="gp-chip" style="left:41%; top:50%; transform: translate(-100%,-50%);">Next background</span>
+        <span class="gp-chip" style="left:43.8%; top:55%; transform: translate(-50%,60%);">Mirror</span>
+        <span class="gp-chip" style="left:53.3%; top:55%; transform: translate(-50%,60%);">Strip</span>
+      </div>
+      <p class="gamepad-note">A = Capture, B = Cancel, X = Save, Y = Print, D-pad = switch background, Select = Mirror, Start = Strip. Bindings re-mappable from Settings - Gamepad. Controller illustration from Wikimedia Commons.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Get it</p>
+      <h2>Download</h2>
+      <p class="sub">Grab the latest package for your platform from the <a href="https://github.com/Giwi/photobooth-desktop/releases" rel="noopener">releases page</a>, or download directly below.</p>
+
+      <div class="dl-grid">
+        <div class="dl">
+          <div class="dl-os"><i class="bi bi-ubuntu"></i> Linux</div>
+          <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.3/photobooth-desktop_0.0.3_amd64.deb" rel="noopener">Download .deb</a>
+          <a class="btn" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.3/photobooth-desktop-0.0.3.x86_64.rpm" rel="noopener">Download .rpm</a>
+          <a class="btn" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.3/Photobooth-0.0.3.AppImage" rel="noopener">Download AppImage</a>
+        </div>
+        <div class="dl">
+          <div class="dl-os"><i class="bi bi-microsoft"></i> Windows</div>
+          <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.3/Photobooth%20Setup%200.0.3.exe" rel="noopener">Download .exe installer</a>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step"><p>Install a webcam and (optionally) a printer. Plug in a gamepad for guest-friendly capture.</p></div>
+        <div class="step"><div class="step-body">
+          <p><b>Debian / Ubuntu:</b> <code>sudo apt install ./photobooth-desktop_0.0.3_amd64.deb</code></p>
+          <p><b>Fedora / RHEL:</b> <code>sudo dnf install ./photobooth-desktop-0.0.3.x86_64.rpm</code></p>
+          <p><b>Any Linux:</b> <code>chmod +x Photobooth-0.0.3.AppImage &amp;&amp; ./Photobooth-0.0.3.AppImage</code></p>
+          <p><b>Windows:</b> run the installer.</p>
+        </div></div>
+        <div class="step"><p>Drop background images into the Settings → Backgrounds tab, pick a theme, and start the party.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <p>Photobooth Desktop · Apache-2.0 · © 2026 GiwiSoft</p>
+    <p><a href="https://giwi.fr" rel="noopener">giwi.fr</a> · <a href="https://github.com/Giwi/photobooth-desktop" rel="noopener">GitHub</a></p>
+  </footer>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button id="lightbox-close" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <script>
+    (function () {
+      var lb = document.getElementById("lightbox");
+      var img = document.getElementById("lightbox-img");
+      function open(e) {
+        if (e.target.tagName !== "IMG") return;
+        if (e.target.closest("#lightbox")) return;
+        var full = e.target.getAttribute("data-full");
+        img.src = full || e.target.currentSrc || e.target.src;
+        img.alt = e.target.alt;
+        lb.setAttribute("aria-hidden", "false");
+        lb.classList.add("open");
+      }
+      document.addEventListener("click", open);
+      lb.addEventListener("click", function () {
+        lb.classList.remove("open");
+        lb.setAttribute("aria-hidden", "true");
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          lb.classList.remove("open");
+          lb.setAttribute("aria-hidden", "true");
+        }
+      });
+    })();
+  </script>
+
+  <script defer src="https://analytics.giwi.fr/script.js" data-website-id="45ad4e19-8808-4492-b09f-ae42a681d9d7"></script>
+</body>
+</html>

@@ -2,6 +2,10 @@
 
 Desktop photobooth app built with Electron + Preact.
 
+<p align="center"><a href="https://giwi.github.io/photobooth-desktop"><img src="docs/assets/icon.png" width="160" alt="Photobooth Desktop"></a></p>
+
+Product page (GitHub Pages): <https://giwi.github.io/photobooth-desktop>
+
 ## Features
 
 - Live webcam feed with PNG background overlays
