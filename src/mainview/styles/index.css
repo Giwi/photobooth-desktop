@@ -269,14 +269,14 @@ body {
   height: 100%;
 }
 
-/* --- Video box --- */
+/* --- Video box: largest exactly-3:2 (10x15cm landscape) frame that fits --- */
 #video-box {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(90vw, calc(90vw * 3 / 2));
-  height: min(90vw, calc(90vw * 2 / 3));
+  width: min(90vw, calc(90vh * 3 / 2));
+  height: min(60vw, 90vh);
   overflow: hidden;
   border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
@@ -285,11 +285,10 @@ body {
 
 #video, #live-canvas {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   object-fit: cover;
-  width: min(90vw, calc(90vw * 3 / 2));
-  height: min(90vw, calc(90vw * 2 / 3));
+  width: 100%;
+  height: 100%;
 }
 
 /* --- Countdown --- */

@@ -123,16 +123,8 @@ export function App() {
     ctx.clearRect(0, 0, W, H);
     if (bgReadyRef.current && img) {
       const bg = backgrounds[selectedBgRef.current];
-      const pos = bg?.position || null;
-      if (mirrorModeRef.current) {
-        ctx.save();
-        ctx.translate(W, 0);
-        ctx.scale(-1, 1);
-        drawBgTo(ctx, img, W, H, pos);
-        ctx.restore();
-      } else {
-        drawBgTo(ctx, img, W, H, pos);
-      }
+      // Background is never mirrored - only the video layer flips.
+      drawBgTo(ctx, img, W, H, bg?.position || null);
     }
   }, [backgrounds]);
 

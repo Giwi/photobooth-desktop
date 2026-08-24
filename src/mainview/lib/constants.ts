@@ -1,5 +1,6 @@
-// Canvas / capture resolution. Fixed 3:2 (1800x1200) - all compositing,
-// background fitting and strips are computed against this.
+// Canvas / capture resolution. Fixed 3:2 (1800x1200) = 10x15cm landscape
+// print format - all compositing, background fitting and strips are
+// computed against this.
 export const W = 1800;
 export const H = 1200;
 

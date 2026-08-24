@@ -19,8 +19,9 @@ export function parsePosition(pos: string | null): { x: number; y: number } {
   return { x, y };
 }
 
-// Fills the canvas with the background image, cover-fit and anchored at the
-// requested position (so e.g. "top" shows the top of a tall backdrop).
+// Fits the background entirely inside the frame (contain): uniform scale,
+// aspect ratio preserved, anchored at the requested position (so e.g. "top"
+// shows the top of a tall backdrop). Gaps expose the video underneath.
 export function drawBgTo(c: CanvasRenderingContext2D, img: HTMLImageElement, cw: number, ch: number, position: string | null) {
   const iw = img.naturalWidth || img.width;
   const ih = img.naturalHeight || img.height;

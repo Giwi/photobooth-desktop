@@ -7,6 +7,7 @@
   "main": "dist/main.cjs",
   "desktopName": "Photobooth",
   "scripts": {
+    "dev": "yarn electron:dev",
     "electron:build": "bash scripts/build-electron.sh",
     "electron:dev": "bash scripts/build-electron.sh && electron .",
     "electron:start": "electron .",
