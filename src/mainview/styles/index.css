@@ -269,14 +269,17 @@ body {
   height: 100%;
 }
 
-/* --- Video box: largest exactly-3:2 (10x15cm landscape) frame that fits --- */
+/* --- Video box: largest exactly-3:2 (10x15cm landscape) frame that fits ---
+   Sized against the viewport minus the backgrounds bar (~76px) and a vertical
+   padding gutter above + below, so the frame never overlaps the header or
+   crowds the bottom. */
 #video-box {
   position: absolute;
-  top: 50%;
+  top: calc(50% + 38px);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(90vw, calc(90vh * 3 / 2));
-  height: min(60vw, 90vh);
+  width: min(90vw, calc((100vh - 172px) * 3 / 2));
+  height: min(60vw, calc(100vh - 172px));
   overflow: hidden;
   border-radius: var(--radius-lg);
   border: 1px solid var(--glass-border);
