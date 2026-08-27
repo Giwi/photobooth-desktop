@@ -1,6 +1,6 @@
 {
   "name": "photobooth-desktop",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Photobooth desktop app (Electron)",
   "license": "Apache-2.0",
   "author": "GiwiSoft",
