@@ -972,6 +972,7 @@ footer a:hover {
 }
 
 .integ-panel {
+  flex-shrink: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
@@ -1005,11 +1006,8 @@ footer a:hover {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 6px 14px 14px;
+  padding: 6px 14px 24px;
   border-top: 1px solid var(--border);
-}
-.integ-field:last-child {
-  margin-bottom: 8px;
 }
 .integ-field {
   display: flex;

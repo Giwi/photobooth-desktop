@@ -207,7 +207,7 @@ export function SettingsOverlay({
             </div>
           )}
           {tab === "background" && (
-            <div className="settings-col settings-col-narrow">
+            <div className="settings-col">
               <div
                 className={`bg-dropzone${dragOver ? " dragover" : ""}`}
                 onClick={onPickBg}
@@ -274,7 +274,7 @@ export function SettingsOverlay({
             </div>
           )}
           {tab === "integrations" && (
-            <div className="settings-col settings-col-narrow">
+            <div className="settings-col">
               <div className="integ-panel">
                 <button className={`integ-header${ncOpen ? " open" : ""}`}
                   onClick={() => setNcOpen(!ncOpen)}>
