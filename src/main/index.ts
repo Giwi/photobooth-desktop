@@ -363,8 +363,8 @@ register("toggleFullscreen", () => {
 
 function createWindow() {
   splashWindow = new BrowserWindow({
-    width: 400,
-    height: 280,
+    width: 480,
+    height: 720,
     frame: false,
     resizable: false,
     center: true,
