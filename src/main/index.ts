@@ -12,6 +12,8 @@ import { join, basename } from "path";
 import { homedir } from "os";
 import { spawn } from "child_process";
 
+import { uploadToAll } from "./integrations";
+
 import en from "../../i18n/en.json";
 import de from "../../i18n/de.json";
 import es from "../../i18n/es.json";
@@ -121,6 +123,7 @@ register("getConfig", () => {
     watermark: cfg.watermark || null,
     keys: cfg.keys || null,
     gamepad: cfg.gamepad || null,
+    integrations: cfg.integrations || null,
     lang,
     theme,
     i18n: translations,
@@ -152,15 +155,26 @@ register("savePhoto", async ({ image, print }: { image: string; print: boolean }
       console.log(`Printed ${filename}`);
     }
 
-    return { filename };
+    // Upload the freshly saved photo to every activated integration.
+    let urls: Record<string, string> = {};
+    try {
+      const { urls: up, errors } = await uploadToAll(readConfig().integrations || {}, filename, buffer);
+      urls = up;
+      for (const [id, msg] of Object.entries(errors)) console.error(`[integration:${id}] ${msg}`);
+    } catch (err) {
+      console.error("Integration upload error:", (err as Error).message);
+    }
+
+    return { filename, urls };
   } catch (err) {
     console.error("Save failed:", err);
     return { filename: "", error: (err as Error).message };
   }
 });
 
-register("saveConfig", ({ lang, watermark, keys, gamepad, theme }: {
+register("saveConfig", ({ lang, watermark, keys, gamepad, theme, integrations }: {
   lang?: string; watermark?: string | null; keys?: Record<string, string>; gamepad?: Record<string, unknown>; theme?: string;
+  integrations?: Record<string, unknown>;
 }) => {
   const cfg = readConfig();
   if (lang !== undefined) cfg.lang = lang;
@@ -168,6 +182,7 @@ register("saveConfig", ({ lang, watermark, keys, gamepad, theme }: {
   if (keys !== undefined) cfg.keys = keys;
   if (gamepad !== undefined) cfg.gamepad = gamepad;
   if (theme !== undefined) cfg.theme = theme;
+  if (integrations !== undefined) cfg.integrations = integrations;
   writeConfig(cfg);
   return { ok: true };
 });

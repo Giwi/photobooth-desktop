@@ -63,6 +63,14 @@
   "settings.exportSettings": "Einstellungen exportieren",
   "settings.importSettings": "Einstellungen importieren",
   "settings.save": "Speichern",
+  "settings.tabIntegrations": "Integrationen",
+  "settings.integrationNextcloud": "Nextcloud",
+  "settings.integrationEnabled": "Aktiviert",
+  "settings.integrationFolderPh": "Unterordner (z. B. Photobooth)",
+  "settings.login": "Benutzername",
+  "settings.password": "Passwort",
+  "settings.qrTtl": "QR-Ablauf (Sekunden)",
+  "qr.scanToDownload": "Zum Herunterladen scannen",
   "about.title": "Über",
   "about.description": "Eine Desktop-Photobooth-Anwendung mit Live-Webcam-Feed, Hintergrundüberlagerungen und Fotostreifen-Modus."
 }

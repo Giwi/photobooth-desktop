@@ -5,6 +5,7 @@ import { rpc } from "./lib/rpc";
 import { W, H, AXIS_THRESHOLD, DEFAULT_KEY_MAP, DEFAULT_GP_MAP } from "./lib/constants";
 import { drawBgTo, drawVideoCrop, drawWatermark, frameToDataUrl, createStrip } from "./lib/canvas";
 import { sleep, keyMatch } from "./lib/utils";
+import QRCode from "qrcode";
 
 import { BackgroundsBar } from "./components/BackgroundsBar";
 import { Viewport } from "./components/Viewport";
@@ -45,6 +46,9 @@ export function App() {
   const [gpListening, setGpListening] = useState<string | null>(null);
   const [settingsLang, setSettingsLang] = useState("en");
   const [bgUrls, setBgUrls] = useState<Record<string, string>>({});
+  const [integrations, setIntegrations] = useState<Record<string, any>>({ nextcloud: {}, qrTtl: 60 });
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [qrVisible, setQrVisible] = useState(false);
 
   const backgrounds = [null, ...bgFiles];
 
@@ -68,6 +72,7 @@ export function App() {
   const watermarkRef = useRef(watermark);
   const settingsOpenRef = useRef(settingsOpen);
   const backgroundsRef = useRef(backgrounds);
+  const qrTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const liveCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const compCtxRef = useRef<CanvasRenderingContext2D | null>(null);
 
@@ -176,6 +181,7 @@ export function App() {
         if (config.lang) setCurrentLang(config.lang);
         if (config.theme) { setTheme(config.theme); setSettingsTheme(config.theme); }
         if (config.i18n) setI18n(config.i18n);
+        if (config.integrations) setIntegrations(config.integrations);
         await reloadBgs();
 
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -300,6 +306,7 @@ export function App() {
   // --- Capture flow ---
   async function capture() {
     if (busy) return;
+    hideQr();
     setBusy(true);
     if (stripMode) await captureStrip();
     else await captureSingle();
@@ -391,7 +398,13 @@ export function App() {
     try {
       const result = await rpc.request.savePhoto({ image: dataUrl, print });
       if (result.error) notify(result.error, "error");
-      else notify(print ? t("notify.savedPrint") : t("notify.saved"), "success");
+      else {
+        notify(print ? t("notify.savedPrint") : t("notify.saved"), "success");
+        // Show QR to download the photo from an activated integration.
+        const shareUrl = result.urls && Object.values(result.urls)[0];
+        hideQr();
+        if (shareUrl) await showQr(shareUrl);
+      }
     } catch {
       notify(t("notify.saveFailed"), "error");
     }
@@ -484,11 +497,33 @@ export function App() {
     setTheme(settingsTheme);
     await rpc.request.saveConfig({
       lang: settingsLang, watermark, keys: keyMap, gamepad: gamepadMap, theme: settingsTheme,
+      integrations,
     });
     const config = await rpc.request.getConfig();
     if (config.i18n) setI18n(config.i18n);
     setSettingsOpen(false);
     notify(t("notify.configSaved"), "success");
+  }
+
+  // Hides the QR (and any pending auto-hide timer).
+  function hideQr() {
+    if (qrTimerRef.current) { clearTimeout(qrTimerRef.current); qrTimerRef.current = null; }
+    setQrVisible(false);
+    setQrDataUrl(null);
+  }
+
+  // Builds a QR data-URL from a share url and shows it for `ttl` seconds.
+  async function showQr(shareUrl: string) {
+    try {
+      const dataUrl = await QRCode.toDataURL(shareUrl, { width: 240, margin: 1 });
+      setQrDataUrl(dataUrl);
+      setQrVisible(true);
+      if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+      const ttl = Number(integrations.qrTtl) || 60;
+      qrTimerRef.current = setTimeout(() => { setQrVisible(false); setQrDataUrl(null); }, ttl * 1000);
+    } catch (e) {
+      console.error("QR generation failed:", e);
+    }
   }
 
   async function importBackground(name: string, dataUrl: string) {
@@ -574,6 +609,7 @@ export function App() {
         videoRef={videoRef} liveCanvasRef={liveCanvasRef} compositorRef={compositorRef}
         countdownNum={countdownNum} flashActive={flashActive}
         showPreview={showPreview} previewSrc={previewSrc} busy={busy}
+        qrVisible={qrVisible} qrDataUrl={qrDataUrl}
         t={t} onPreviewAction={(a) => actionResolverRef.current?.(a)}
       />
 
@@ -605,6 +641,7 @@ export function App() {
           onSetCountdownDuration={setCountdownDuration}
           onSwitchCamera={switchCamera} onSetKeyListening={setKeyListening}
           onSetGpListening={setGpListening} onSave={saveSettings}
+          integrations={integrations} onSetIntegrations={setIntegrations}
           onImportBg={importBackground}
           onPickBg={pickBackgrounds}
           onExportSettings={exportSettings}

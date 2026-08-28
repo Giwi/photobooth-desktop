@@ -63,6 +63,14 @@
   "settings.exportSettings": "Export settings",
   "settings.importSettings": "Import settings",
   "settings.save": "Save",
+  "settings.tabIntegrations": "Integrations",
+  "settings.integrationNextcloud": "Nextcloud",
+  "settings.integrationEnabled": "Enabled",
+  "settings.integrationFolderPh": "Subfolder (e.g. Photobooth)",
+  "settings.login": "Login",
+  "settings.password": "Password",
+  "settings.qrTtl": "QR expiry (seconds)",
+  "qr.scanToDownload": "Scan to download your photo",
   "about.title": "About",
   "about.description": "A desktop photobooth application with live webcam feed, background overlays, and photo strip mode."
 }

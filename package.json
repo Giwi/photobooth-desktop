@@ -14,7 +14,8 @@
     "electron:dist": "bash scripts/build-electron.sh && electron-builder --linux deb rpm AppImage"
   },
   "dependencies": {
-    "preact": "^10.29.7"
+    "preact": "^10.29.7",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "electron": "^43.2.0",
@@ -34,7 +35,11 @@
       "!node_modules/**"
     ],
     "linux": {
-      "target": ["deb", "rpm", "AppImage"],
+      "target": [
+        "deb",
+        "rpm",
+        "AppImage"
+      ],
       "icon": "build/icons",
       "category": "Graphics",
       "maintainer": "GiwiSoft",
@@ -42,7 +47,9 @@
       "syncDesktopName": true
     },
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "src/mainview/assets/icon.png"
     }
   }

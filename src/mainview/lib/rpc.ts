@@ -25,13 +25,14 @@ type Requests = {
       watermark: string | null;
       keys: Record<string, string> | null;
       gamepad: Record<string, any> | null;
+      integrations: Record<string, any> | null;
       lang: string;
       theme: string;
       i18n: Record<string, string>;
     };
   };
   getBackgroundPath: { params: { file: string }; response: string };
-  savePhoto: { params: { image: string; print: boolean }; response: { filename: string; error?: string } };
+  savePhoto: { params: { image: string; print: boolean }; response: { filename: string; urls?: Record<string, string>; error?: string } };
   saveConfig: {
     params: {
       lang?: string;
@@ -39,6 +40,7 @@ type Requests = {
       keys?: Record<string, string>;
       gamepad?: Record<string, unknown>;
       theme?: string;
+      integrations?: Record<string, unknown>;
     };
     response: { ok: boolean };
   };

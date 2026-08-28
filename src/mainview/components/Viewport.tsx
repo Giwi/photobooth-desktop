@@ -10,6 +10,8 @@ interface Props {
   showPreview: boolean;
   previewSrc: string;
   busy: boolean;
+  qrVisible: boolean;
+  qrDataUrl: string | null;
   t: (key: string) => string;
   onPreviewAction: (action: string) => void;
 }
@@ -18,7 +20,7 @@ interface Props {
 // compositor, countdown, flash, and the post-capture preview with actions.
 export function Viewport({
   videoRef, liveCanvasRef, compositorRef,
-  countdownNum, flashActive, showPreview, previewSrc, busy, t, onPreviewAction,
+  countdownNum, flashActive, showPreview, previewSrc, busy, qrVisible, qrDataUrl, t, onPreviewAction,
 }: Props) {
   return (
     <div id="viewport">
@@ -44,6 +46,12 @@ export function Viewport({
               <i class="bi bi-x-lg" /> {t("btn.discard")}
             </button>
           </div>
+        </div>
+      )}
+      {qrVisible && qrDataUrl && (
+        <div id="qr-overlay">
+          <img id="qr-img" src={qrDataUrl} alt="QR code to download the photo" />
+          <div id="qr-label">{t("qr.scanToDownload")}</div>
         </div>
       )}
     </div>

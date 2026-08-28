@@ -63,6 +63,14 @@
   "settings.exportSettings": "Exportar ajustes",
   "settings.importSettings": "Importar ajustes",
   "settings.save": "Guardar",
+  "settings.tabIntegrations": "Integraciones",
+  "settings.integrationNextcloud": "Nextcloud",
+  "settings.integrationEnabled": "Activado",
+  "settings.integrationFolderPh": "Subcarpeta (p. ej. Photobooth)",
+  "settings.login": "Usuario",
+  "settings.password": "Contraseña",
+  "settings.qrTtl": "Caducidad del QR (segundos)",
+  "qr.scanToDownload": "Escanee para descargar su foto",
   "about.title": "Acerca de",
   "about.description": "Una aplicación de fotomatón de escritorio con transmisión de cámara web en vivo, superposiciones de fondo y modo de tira de fotos."
 }

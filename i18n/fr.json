@@ -63,6 +63,14 @@
   "settings.exportSettings": "Exporter les paramètres",
   "settings.importSettings": "Importer les paramètres",
   "settings.save": "Enregistrer",
+  "settings.tabIntegrations": "Intégrations",
+  "settings.integrationNextcloud": "Nextcloud",
+  "settings.integrationEnabled": "Activé",
+  "settings.integrationFolderPh": "Sous-dossier (ex. Photobooth)",
+  "settings.login": "Identifiant",
+  "settings.password": "Mot de passe",
+  "settings.qrTtl": "Expiration du QR (secondes)",
+  "qr.scanToDownload": "Scannez pour télécharger votre photo",
   "about.title": "À propos",
   "about.description": "Une application de photomaton de bureau avec flux webcam en direct, superpositions d'arrière-plan et mode bande photo."
 }

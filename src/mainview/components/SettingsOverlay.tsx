@@ -33,6 +33,8 @@ interface Props {
   onImportSettings: (json: string) => void;
   onDeleteBg: (file: string) => void;
   onSetBgPosition: (file: string, position: string | null) => void;
+  integrations: Record<string, any>;
+  onSetIntegrations: (integrations: Record<string, any>) => void;
   onSave: () => void;
   onClose: () => void;
 }
@@ -67,12 +69,22 @@ export function SettingsOverlay({
   backgrounds, bgUrls, keyMap, gamepadMap, keyListening, gpListening, gpConnected, t,
   onSetSettingsLang, onSetSettingsTheme, onSetWatermark, onSetCountdownDuration, onSwitchCamera,
   onSetKeyListening, onSetGpListening, onImportBg, onPickBg, onExportSettings, onImportSettings,
-  onDeleteBg, onSetBgPosition, onSave, onClose,
+  onDeleteBg, onSetBgPosition, integrations, onSetIntegrations, onSave, onClose,
 }: Props) {
   const watermarkRef = useRef<HTMLInputElement>(null);
   const importFileRef = useRef<HTMLInputElement>(null);
-  const [tab, setTab] = useState<"general" | "background" | "bindings">("general");
+  const [tab, setTab] = useState<"general" | "background" | "bindings" | "integrations">("general");
   const [dragOver, setDragOver] = useState(false);
+
+  const nc = (integrations.nextcloud || {}) as Record<string, any>;
+
+  // Mutate a single Nextcloud integration field.
+  const setNc = (field: string, value: any) => {
+    onSetIntegrations({ ...integrations, nextcloud: { ...nc, [field]: value } });
+  };
+  const setTtl = (value: string) => {
+    onSetIntegrations({ ...integrations, qrTtl: value });
+  };
 
   // Keep the watermark input in sync with the saved value.
   useEffect(() => {
@@ -110,6 +122,7 @@ export function SettingsOverlay({
     { id: "general" as const, label: t("settings.tabGeneral") },
     { id: "background" as const, label: t("settings.tabBackground") },
     { id: "bindings" as const, label: t("settings.tabBindings") },
+    { id: "integrations" as const, label: t("settings.tabIntegrations") },
   ];
 
   return (
@@ -256,6 +269,39 @@ export function SettingsOverlay({
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+          {tab === "integrations" && (
+            <div className="settings-col settings-col-narrow">
+              <div className="settings-group">
+                <label className="integ-name">
+                  <i class="bi bi-cloud-fill" /> {t("settings.integrationNextcloud")}
+                </label>
+                <div className="settings-row">
+                  <label className="check-label">
+                    <input type="checkbox" checked={!!nc.enabled}
+                      onChange={(e) => setNc("enabled", (e.target as HTMLInputElement).checked)} />
+                    {t("settings.integrationEnabled")}
+                  </label>
+                </div>
+                <input type="text" placeholder="https://cloud.example.com" value={nc.baseUrl || ""}
+                  onChange={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)}
+                  onInput={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)} />
+                <input type="text" placeholder={t("settings.integrationFolderPh")} value={nc.folder || ""}
+                  onChange={(e) => setNc("folder", (e.target as HTMLInputElement).value)}
+                  onInput={(e) => setNc("folder", (e.target as HTMLInputElement).value)} />
+                <input type="text" placeholder={t("settings.login")} value={nc.username || ""}
+                  onChange={(e) => setNc("username", (e.target as HTMLInputElement).value)}
+                  onInput={(e) => setNc("username", (e.target as HTMLInputElement).value)} />
+                <input type="password" placeholder={t("settings.password")} value={nc.password || ""}
+                  onChange={(e) => setNc("password", (e.target as HTMLInputElement).value)}
+                  onInput={(e) => setNc("password", (e.target as HTMLInputElement).value)} />
+              </div>
+              <div className="settings-group">
+                <label>{t("settings.qrTtl")}</label>
+                <input type="number" min={5} value={integrations.qrTtl ?? 60}
+                  onInput={(e) => setTtl((e.target as HTMLInputElement).value)} />
               </div>
             </div>
           )}

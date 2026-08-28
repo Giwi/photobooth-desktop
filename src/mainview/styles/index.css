@@ -418,6 +418,41 @@ body {
 
 #btn-cancel:active { transform: scale(0.97); }
 
+/* --- QR download overlay --- */
+#qr-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  background: rgba(10, 10, 20, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--frame-glow);
+  z-index: 16;
+  animation: scaleIn 0.25s var(--ease-out);
+}
+#qr-img {
+  width: 220px;
+  height: 220px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 8px;
+  image-rendering: pixelated;
+}
+#qr-label {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 /* --- Settings bar --- */
 #settings {
   position: absolute;
@@ -914,7 +949,9 @@ footer a:hover {
   background: var(--accent-dim);
 }
 
-.settings-group input[type="text"] {
+.settings-group input[type="text"],
+.settings-group input[type="password"],
+.settings-group input[type="number"] {
   width: 100%;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
@@ -925,11 +962,37 @@ footer a:hover {
   font-family: inherit;
   outline: none;
   transition: border-color 0.15s ease;
+  margin-top: 8px;
 }
 
-.settings-group input[type="text"]:focus {
+.settings-group input[type="text"]:focus,
+.settings-group input[type="password"]:focus,
+.settings-group input[type="number"]:focus {
   border-color: var(--accent);
 }
+
+.integ-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600 !important;
+}
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.check-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-strong);
+  cursor: pointer;
+}
+
 
 .bg-dropzone {
   display: flex;
