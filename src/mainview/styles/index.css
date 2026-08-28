@@ -852,6 +852,10 @@ footer a:hover {
   max-width: 480px;
 }
 
+.settings-col .settings-group:last-child {
+  margin-bottom: 12px;
+}
+
 .settings-group label {
   display: block;
   font-size: 0.8rem;
