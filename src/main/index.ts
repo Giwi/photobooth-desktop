@@ -12,7 +12,7 @@ import { join, basename } from "path";
 import { homedir } from "os";
 import { spawn } from "child_process";
 
-import { uploadToAll } from "./integrations";
+import { uploadToAll, authorizeOAuth, listPrinters, email, printer } from "./integrations";
 
 import en from "../../i18n/en.json";
 import de from "../../i18n/de.json";
@@ -138,7 +138,7 @@ register("getBackgroundPath", ({ file }: { file: string }) => {
   return `data:${mime};base64,${b64}`;
 });
 
-register("savePhoto", async ({ image, print }: { image: string; print: boolean }) => {
+register("savePhoto", async ({ image, print, email: recipient }: { image: string; print: boolean; email?: string }) => {
   try {
     const base64 = image.split(",")[1];
     if (!base64) return { filename: "", error: "Invalid image data" };
@@ -150,25 +150,66 @@ register("savePhoto", async ({ image, print }: { image: string; print: boolean }
     writeFileSync(filepath, buffer);
     console.log(`Saved ${filepath}`);
 
+    let printResult: string | undefined;
+    const cfg = readConfig();
+    const integrations = cfg.integrations || {};
+
     if (print) {
-      spawn("lp", ["-o", "media=4x6in", "-o", "MediaType=Glossy", filepath]);
-      console.log(`Printed ${filename}`);
+      const printerCfg = (integrations.printer || {}) as { printer?: string };
+      try {
+        await printer.print({ enabled: true, printer: printerCfg.printer || "" }, filepath);
+        console.log(`Printed ${filename}`);
+      } catch (err) {
+        printResult = (err as Error).message;
+        console.error("Print failed:", printResult);
+        // Fall back to the default `lp` so printing still works if no printer
+        // was chosen.
+        spawn("lp", ["-o", "media=4x6in", "-o", "MediaType=Glossy", filepath]);
+      }
     }
 
     // Upload the freshly saved photo to every activated integration.
     let urls: Record<string, string> = {};
     try {
-      const { urls: up, errors } = await uploadToAll(readConfig().integrations || {}, filename, buffer);
+      const { urls: up, errors } = await uploadToAll(integrations, filename, buffer);
       urls = up;
       for (const [id, msg] of Object.entries(errors)) console.error(`[integration:${id}] ${msg}`);
     } catch (err) {
       console.error("Integration upload error:", (err as Error).message);
     }
 
-    return { filename, urls };
+    // Email the photo to the guest-provided address, if any.
+    if (recipient && integrations.email?.enabled) {
+      try {
+        await email.send(integrations.email, recipient, filename, buffer);
+      } catch (err) {
+        console.error("[integration:email] send failed:", (err as Error).message);
+        if (!Object.keys(urls).length && !printResult) {
+          return { filename, error: (err as Error).message };
+        }
+      }
+    }
+
+    return { filename, urls, printError: printResult };
   } catch (err) {
     console.error("Save failed:", err);
     return { filename: "", error: (err as Error).message };
+  }
+});
+
+register("listPrinters", async () => {
+  try {
+    return { printers: await listPrinters() };
+  } catch (err) {
+    return { printers: [], error: (err as Error).message };
+  }
+});
+
+register("oauthAuthorize", async ({ id, clientId, clientSecret }: { id: string; clientId: string; clientSecret?: string }) => {
+  try {
+    return await authorizeOAuth(id, { clientId, clientSecret });
+  } catch (err) {
+    return { ok: false, error: (err as Error).message };
   }
 });
 

@@ -3,6 +3,14 @@
 // Register new integrations here to have them uploaded after every save.
 import { IntegrationConfig } from "./types";
 import * as nextcloud from "./nextcloud";
+import * as googledrive from "./googledrive";
+import * as dropbox from "./dropbox";
+import * as onedrive from "./onedrive";
+import * as ftp from "./ftp";
+import * as email from "./email";
+import * as printer from "./printer";
+import { authorize } from "./oauth";
+import { OAuthClientConfig } from "./oauth";
 
 export type UploadResult = { url: string };
 
@@ -16,8 +24,14 @@ interface IntegrationAdapter {
   ) => Promise<UploadResult>;
 }
 
+// Push-to-cloud adapters (run after every save and can produce a share URL for
+// the QR code). Email and printer are separate (see below).
 const ADAPTERS: IntegrationAdapter[] = [
   { id: "nextcloud", upload: nextcloud.upload },
+  { id: "googledrive", upload: googledrive.upload },
+  { id: "dropbox", upload: dropbox.upload },
+  { id: "onedrive", upload: onedrive.upload },
+  { id: "ftp", upload: ftp.upload },
 ];
 
 export function isEnabled(cfg: IntegrationConfig, id: string): boolean {
@@ -48,3 +62,12 @@ export async function uploadToAll(
   }
   return { urls, errors };
 }
+
+// OAuth authorization for the cloud-drive integrations. Returns the tokens to
+// persist (renderer writes them into the config and saves to disk).
+export function authorizeOAuth(id: string, clientCfg: OAuthClientConfig) {
+  return authorize(id, clientCfg);
+}
+
+export { email, printer };
+export { listPrinters } from "./printer";

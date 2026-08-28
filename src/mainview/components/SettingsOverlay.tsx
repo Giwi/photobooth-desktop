@@ -3,6 +3,8 @@ import { useRef, useEffect, useState } from "preact/hooks";
 import { ACTION_LABELS } from "../lib/constants";
 import { formatGpBinding } from "../lib/utils";
 import { Select } from "./Select";
+import { IntegrationPanel, Field } from "./IntegrationPanel";
+import { rpc } from "../lib/rpc";
 
 interface Props {
   currentLang: string;
@@ -76,15 +78,53 @@ export function SettingsOverlay({
   const [tab, setTab] = useState<"general" | "background" | "bindings" | "integrations">("general");
   const [dragOver, setDragOver] = useState(false);
   const [ncOpen, setNcOpen] = useState(false);
+  const [gdOpen, setGdOpen] = useState(false);
+  const [dbOpen, setDbOpen] = useState(false);
+  const [odOpen, setOdOpen] = useState(false);
+  const [ftpOpen, setFtpOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [printerOpen, setPrinterOpen] = useState(false);
+  const [printers, setPrinters] = useState<string[]>([]);
+  const [oauthBusy, setOauthBusy] = useState<string | null>(null);
+  const [oauthError, setOauthError] = useState<string | null>(null);
 
-  const nc = (integrations.nextcloud || {}) as Record<string, any>;
-
-  // Mutate a single Nextcloud integration field.
-  const setNc = (field: string, value: any) => {
-    onSetIntegrations({ ...integrations, nextcloud: { ...nc, [field]: value } });
+  // Generic: mutate cfg.integrations.<id>.<field>.
+  const setInt = (id: string, field: string, value: any) => {
+    onSetIntegrations({ ...integrations, [id]: { ...(integrations[id] || {}), [field]: value } });
   };
   const setTtl = (value: string) => {
     onSetIntegrations({ ...integrations, qrTtl: value });
+  };
+
+  // Load the system printers once when the Integrations tab is opened.
+  useEffect(() => {
+    if (tab === "integrations") {
+      rpc.request.listPrinters().then((r) => setPrinters(r.printers || [])).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
+  // Run the OAuth flow for a cloud drive and persist the returned tokens.
+  const runOAuth = async (id: string) => {
+    const cfg = integrations[id] || {};
+    setOauthBusy(id);
+    setOauthError(null);
+    try {
+      const res = await rpc.request.oauthAuthorize({
+        id,
+        clientId: cfg.clientId || "",
+        clientSecret: cfg.clientSecret || undefined,
+      });
+      if (res.ok && res.tokens) {
+        onSetIntegrations({ ...integrations, [id]: { ...cfg, tokens: res.tokens } });
+      } else {
+        setOauthError(t("settings.integrationAuthFailed") + (res.error ? `: ${res.error}` : ""));
+      }
+    } catch {
+      setOauthError(t("settings.integrationAuthFailed"));
+    } finally {
+      setOauthBusy(null);
+    }
   };
 
   // Keep the watermark input in sync with the saved value.
@@ -275,49 +315,147 @@ export function SettingsOverlay({
           )}
           {tab === "integrations" && (
             <div className="settings-col">
-              <div className="integ-panel">
-                <button className={`integ-header${ncOpen ? " open" : ""}`}
-                  onClick={() => setNcOpen(!ncOpen)}>
-                  <img src="nextcloud.svg" className="integ-icon" alt="Nextcloud" />
-                  <span className="integ-title">{t("settings.integrationNextcloud")}</span>
-                  <i className={`bi integ-caret${ncOpen ? " bi-chevron-up" : " bi-chevron-down"}`} />
-                </button>
-                {ncOpen && (
-                  <div className="integ-body">
-                    <div className="settings-row">
-                      <label className="check-label">
-                        <input type="checkbox" checked={!!nc.enabled}
-                          onChange={(e) => setNc("enabled", (e.target as HTMLInputElement).checked)} />
-                        {t("settings.integrationEnabled")}
-                      </label>
-                    </div>
-                    <div className="integ-field">
-                      <label htmlFor="nc-url">{t("settings.integrationUrl")}</label>
-                      <input id="nc-url" type="text" placeholder="https://cloud.example.com" value={nc.baseUrl || ""}
-                        onChange={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)}
-                        onInput={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)} />
-                    </div>
-                    <div className="integ-field">
-                      <label htmlFor="nc-folder">{t("settings.integrationFolder")}</label>
-                      <input id="nc-folder" type="text" placeholder={t("settings.integrationFolderPh")} value={nc.folder || ""}
-                        onChange={(e) => setNc("folder", (e.target as HTMLInputElement).value)}
-                        onInput={(e) => setNc("folder", (e.target as HTMLInputElement).value)} />
-                    </div>
-                    <div className="integ-field">
-                      <label htmlFor="nc-login">{t("settings.login")}</label>
-                      <input id="nc-login" type="text" placeholder={t("settings.login")} value={nc.username || ""}
-                        onChange={(e) => setNc("username", (e.target as HTMLInputElement).value)}
-                        onInput={(e) => setNc("username", (e.target as HTMLInputElement).value)} />
-                    </div>
-                    <div className="integ-field">
-                      <label htmlFor="nc-pass">{t("settings.password")}</label>
-                      <input id="nc-pass" type="password" placeholder={t("settings.password")} value={nc.password || ""}
-                        onChange={(e) => setNc("password", (e.target as HTMLInputElement).value)}
-                        onInput={(e) => setNc("password", (e.target as HTMLInputElement).value)} />
-                    </div>
-                  </div>
-                )}
-              </div>
+              <IntegrationPanel
+                icon="nextcloud.svg"
+                title={t("settings.integrationNextcloud")}
+                open={ncOpen}
+                onToggle={() => setNcOpen(!ncOpen)}
+                enabled={!!integrations.nextcloud?.enabled}
+                onToggleEnabled={(v) => setInt("nextcloud", "enabled", v)}
+                t={t}
+                fields={[
+                  { id: "baseUrl", label: t("settings.integrationUrl"), placeholder: "https://cloud.example.com" },
+                  { id: "folder", label: t("settings.integrationFolder"), placeholder: t("settings.integrationFolderPh") },
+                  { id: "username", label: t("settings.login") },
+                  { id: "password", label: t("settings.password"), type: "password" },
+                ]}
+                values={integrations.nextcloud || {}}
+                onChange={(f, v) => setInt("nextcloud", f, v)}
+              />
+
+              <IntegrationPanel
+                title={t("settings.integrationGoogleDrive")}
+                open={gdOpen}
+                onToggle={() => setGdOpen(!gdOpen)}
+                enabled={!!integrations.googledrive?.enabled}
+                onToggleEnabled={(v) => setInt("googledrive", "enabled", v)}
+                t={t}
+                fields={[
+                  { id: "clientId", label: t("settings.clientId"), placeholder: "xxxx.apps.googleusercontent.com" },
+                  { id: "folder", label: t("settings.integrationFolder"), placeholder: "Photobooth" },
+                ]}
+                values={integrations.googledrive || {}}
+                onChange={(f, v) => setInt("googledrive", f, v)}
+                onAuthorize={() => runOAuth("googledrive")}
+                authorized={!!integrations.googledrive?.tokens?.access_token}
+                footer={oauthBusy === "googledrive" ? <div className="integ-auth-note">{t("settings.integrationAuthBusy")}</div> : null}
+              />
+
+              <IntegrationPanel
+                title={t("settings.integrationDropbox")}
+                open={dbOpen}
+                onToggle={() => setDbOpen(!dbOpen)}
+                enabled={!!integrations.dropbox?.enabled}
+                onToggleEnabled={(v) => setInt("dropbox", "enabled", v)}
+                t={t}
+                fields={[
+                  { id: "clientId", label: t("settings.appKey") },
+                  { id: "clientSecret", label: t("settings.appSecret"), type: "password" },
+                  { id: "folder", label: t("settings.integrationFolder"), placeholder: "Photobooth" },
+                ]}
+                values={integrations.dropbox || {}}
+                onChange={(f, v) => setInt("dropbox", f, v)}
+                onAuthorize={() => runOAuth("dropbox")}
+                authorized={!!integrations.dropbox?.tokens?.access_token}
+                footer={oauthBusy === "dropbox" ? <div className="integ-auth-note">{t("settings.integrationAuthBusy")}</div> : null}
+              />
+
+              <IntegrationPanel
+                title={t("settings.integrationOneDrive")}
+                open={odOpen}
+                onToggle={() => setOdOpen(!odOpen)}
+                enabled={!!integrations.onedrive?.enabled}
+                onToggleEnabled={(v) => setInt("onedrive", "enabled", v)}
+                t={t}
+                fields={[
+                  { id: "clientId", label: t("settings.clientId"), placeholder: "xxxxxxxx-xxxx-...-xxxx" },
+                  { id: "clientSecret", label: t("settings.clientSecret"), type: "password" },
+                  { id: "folder", label: t("settings.integrationFolder"), placeholder: "Photobooth" },
+                ]}
+                values={integrations.onedrive || {}}
+                onChange={(f, v) => setInt("onedrive", f, v)}
+                onAuthorize={() => runOAuth("onedrive")}
+                authorized={!!integrations.onedrive?.tokens?.access_token}
+                footer={oauthBusy === "onedrive" ? <div className="integ-auth-note">{t("settings.integrationAuthBusy")}</div> : null}
+              />
+
+              <IntegrationPanel
+                title={t("settings.integrationFtp")}
+                open={ftpOpen}
+                onToggle={() => setFtpOpen(!ftpOpen)}
+                enabled={!!integrations.ftp?.enabled}
+                onToggleEnabled={(v) => setInt("ftp", "enabled", v)}
+                t={t}
+                fields={[
+                  {
+                    id: "mode",
+                    label: t("settings.ftpMode"),
+                    options: [
+                      { value: "ftp", label: "FTP" },
+                      { value: "sftp", label: "SFTP" },
+                    ],
+                  },
+                  { id: "host", label: t("settings.host") },
+                  { id: "port", label: t("settings.port"), type: "number" },
+                  { id: "username", label: t("settings.login") },
+                  { id: "password", label: t("settings.password"), type: "password" },
+                  { id: "folder", label: t("settings.integrationFolder"), placeholder: "/photos" },
+                ]}
+                values={integrations.ftp || {}}
+                onChange={(f, v) => setInt("ftp", f, v)}
+              />
+
+              <IntegrationPanel
+                title={t("settings.integrationEmail")}
+                open={emailOpen}
+                onToggle={() => setEmailOpen(!emailOpen)}
+                enabled={!!integrations.email?.enabled}
+                onToggleEnabled={(v) => setInt("email", "enabled", v)}
+                t={t}
+                fields={[
+                  { id: "host", label: t("settings.smtpHost") },
+                  { id: "port", label: t("settings.port"), type: "number" },
+                  { id: "secure", label: t("settings.smtpSecure"), type: "checkbox" },
+                  { id: "username", label: t("settings.login") },
+                  { id: "password", label: t("settings.password"), type: "password" },
+                  { id: "from", label: t("settings.emailFrom"), placeholder: "photobooth@example.com" },
+                ]}
+                values={integrations.email || {}}
+                onChange={(f, v) => setInt("email", f, v)}
+              />
+
+              <IntegrationPanel
+                title={t("settings.integrationPrinter")}
+                open={printerOpen}
+                onToggle={() => setPrinterOpen(!printerOpen)}
+                enabled={!!integrations.printer?.enabled}
+                onToggleEnabled={(v) => setInt("printer", "enabled", v)}
+                t={t}
+                fields={[
+                  {
+                    id: "printer",
+                    label: t("settings.printer"),
+                    options: printers.length
+                      ? printers.map((p) => ({ value: p, label: p }))
+                      : [{ value: "", label: t("settings.noPrinter") }],
+                  },
+                ]}
+                values={integrations.printer || {}}
+                onChange={(f, v) => setInt("printer", f, v)}
+              />
+
+              {oauthError && <div className="integ-auth-note error">{oauthError}</div>}
+
               <div className="settings-group">
                 <label>{t("settings.qrTtl")}</label>
                 <input type="number" min={5} value={integrations.qrTtl ?? 60}

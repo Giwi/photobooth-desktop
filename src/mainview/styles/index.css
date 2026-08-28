@@ -1060,9 +1060,60 @@ footer a:hover {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .integ-body input[type="text"]:focus,
-.integ-body input[type="password"]:focus {
+.integ-body input[type="password"]:focus,
+.integ-body input[type="number"]:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.integ-body input[type="number"],
+.integ-body select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.integ-enabled {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.integ-enabled input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.integ-auth {
+  margin-top: 12px;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+.integ-auth:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.integ-auth-note {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.integ-auth-note.error {
+  color: var(--danger, #e5484d);
 }
 .check-label {
   display: flex;

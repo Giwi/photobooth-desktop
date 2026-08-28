@@ -14,6 +14,8 @@
     "electron:dist": "bash scripts/build-electron.sh && electron-builder --linux deb rpm AppImage"
   },
   "dependencies": {
+    "nodemailer": "^9.0.6",
+    "oauth4webapi": "^3.8.7",
     "preact": "^10.29.7",
     "qrcode": "^1.5.4"
   },

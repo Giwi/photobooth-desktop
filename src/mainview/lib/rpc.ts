@@ -32,7 +32,12 @@ type Requests = {
     };
   };
   getBackgroundPath: { params: { file: string }; response: string };
-  savePhoto: { params: { image: string; print: boolean }; response: { filename: string; urls?: Record<string, string>; error?: string } };
+  savePhoto: { params: { image: string; print: boolean; email?: string }; response: { filename: string; urls?: Record<string, string>; printError?: string; error?: string } };
+  listPrinters: { params: void; response: { printers: string[]; error?: string } };
+  oauthAuthorize: {
+    params: { id: string; clientId: string; clientSecret?: string };
+    response: { ok: boolean; error?: string; label?: string; tokens?: Record<string, unknown> };
+  };
   saveConfig: {
     params: {
       lang?: string;
@@ -64,6 +69,10 @@ export const rpc = {
       invoke("getBackgroundPath", params),
     savePhoto: (params: Requests["savePhoto"]["params"]): Promise<Requests["savePhoto"]["response"]> =>
       invoke("savePhoto", params),
+    listPrinters: (): Promise<Requests["listPrinters"]["response"]> =>
+      invoke("listPrinters"),
+    oauthAuthorize: (params: Requests["oauthAuthorize"]["params"]): Promise<Requests["oauthAuthorize"]["response"]> =>
+      invoke("oauthAuthorize", params),
     saveConfig: (params: Requests["saveConfig"]["params"]): Promise<Requests["saveConfig"]["response"]> =>
       invoke("saveConfig", params),
     importBackground: (params: Requests["importBackground"]["params"]): Promise<Requests["importBackground"]["response"]> =>

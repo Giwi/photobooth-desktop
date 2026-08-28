@@ -347,9 +347,9 @@ export function App() {
 
     setPreviewSrc(dataUrl);
     setShowPreview(true);
-    const action = await new Promise<string>((resolve) => { actionResolverRef.current = resolve; });
+    const res = await new Promise<{ action: string; email?: string }>((resolve) => { actionResolverRef.current = resolve; });
     setShowPreview(false);
-    if (action !== "cancel") await savePhoto(dataUrl, action === "print");
+    if (res.action !== "cancel") await savePhoto(dataUrl, res.action === "print", res.email);
   }
 
   async function captureStrip() {
@@ -389,14 +389,14 @@ export function App() {
     const stripUrl = createStrip(frames);
     setPreviewSrc(stripUrl);
     setShowPreview(true);
-    const action = await new Promise<string>((resolve) => { actionResolverRef.current = resolve; });
+    const res = await new Promise<{ action: string; email?: string }>((resolve) => { actionResolverRef.current = resolve; });
     setShowPreview(false);
-    if (action !== "cancel") await savePhoto(stripUrl, action === "print");
+    if (res.action !== "cancel") await savePhoto(stripUrl, res.action === "print", res.email);
   }
 
-  async function savePhoto(dataUrl: string, print: boolean) {
+  async function savePhoto(dataUrl: string, print: boolean, email?: string) {
     try {
-      const result = await rpc.request.savePhoto({ image: dataUrl, print });
+      const result = await rpc.request.savePhoto({ image: dataUrl, print, email });
       if (result.error) notify(result.error, "error");
       else {
         notify(print ? t("notify.savedPrint") : t("notify.saved"), "success");
@@ -610,7 +610,8 @@ export function App() {
         countdownNum={countdownNum} flashActive={flashActive}
         showPreview={showPreview} previewSrc={previewSrc} busy={busy}
         qrVisible={qrVisible} qrDataUrl={qrDataUrl}
-        t={t} onPreviewAction={(a) => actionResolverRef.current?.(a)}
+        emailEnabled={!!integrations.email?.enabled}
+        t={t} onPreviewAction={(a, email) => actionResolverRef.current?.(a, email)}
       />
 
       <SettingsBar
