@@ -1008,6 +1008,9 @@ footer a:hover {
   padding: 6px 14px 14px;
   border-top: 1px solid var(--border);
 }
+.integ-field:last-child {
+  margin-bottom: 8px;
+}
 .integ-field {
   display: flex;
   flex-direction: column;
