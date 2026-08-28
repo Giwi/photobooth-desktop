@@ -22,6 +22,7 @@ Product page (GitHub Pages): <https://giwi.github.io/photobooth-desktop>
 - Optional watermark text
 - In-app settings overlay (instead of editing config.json)
 - Save to disk and optional print (4×6 Glossy)
+- Integrations (Nextcloud upload + QR code share link)
 
 Runtime data (config, backgrounds) lives in the OS cache dir, not the app
 bundle: `~/.cache/photobooth` (Linux), `~/Library/Caches/photobooth` (macOS),
@@ -29,6 +30,24 @@ bundle: `~/.cache/photobooth` (Linux), `~/Library/Caches/photobooth` (macOS),
 Pictures folder: `~/Pictures/photobooth` (Linux/macOS), `%USERPROFILE%\Pictures\photobooth`
 (Windows). Defaults are seeded from the bundle on first run; manage backgrounds
 in the Settings → Background tab.
+
+## Integrations
+
+Integrations let guests grab their photos on their own phone without a
+computer. Configure them in Settings → Integrations.
+
+### Nextcloud
+
+- Toggle the integration and, when enabled, set the server URL, login,
+  password, and destination folder.
+- After each capture the photo is uploaded over WebDAV to that folder, and a
+  **public share link** is created via the Nextcloud OCS Share API
+  (`shareType=3`, read-only).
+- A QR code with the share link is overlaid on the preview so a phone can
+  open the download directly. The QR auto-hides after a configurable TTL or
+  when the next capture starts.
+
+Set the QR expiry (in seconds) with the dedicated setting; the default is 60 s.
 
 ## Prerequisites
 
