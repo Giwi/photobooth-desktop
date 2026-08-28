@@ -75,6 +75,7 @@ export function SettingsOverlay({
   const importFileRef = useRef<HTMLInputElement>(null);
   const [tab, setTab] = useState<"general" | "background" | "bindings" | "integrations">("general");
   const [dragOver, setDragOver] = useState(false);
+  const [ncOpen, setNcOpen] = useState(false);
 
   const nc = (integrations.nextcloud || {}) as Record<string, any>;
 
@@ -274,29 +275,48 @@ export function SettingsOverlay({
           )}
           {tab === "integrations" && (
             <div className="settings-col settings-col-narrow">
-              <div className="settings-group">
-                <label className="integ-name">
-                  <i class="bi bi-cloud-fill" /> {t("settings.integrationNextcloud")}
-                </label>
-                <div className="settings-row">
-                  <label className="check-label">
-                    <input type="checkbox" checked={!!nc.enabled}
-                      onChange={(e) => setNc("enabled", (e.target as HTMLInputElement).checked)} />
-                    {t("settings.integrationEnabled")}
-                  </label>
-                </div>
-                <input type="text" placeholder="https://cloud.example.com" value={nc.baseUrl || ""}
-                  onChange={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)}
-                  onInput={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)} />
-                <input type="text" placeholder={t("settings.integrationFolderPh")} value={nc.folder || ""}
-                  onChange={(e) => setNc("folder", (e.target as HTMLInputElement).value)}
-                  onInput={(e) => setNc("folder", (e.target as HTMLInputElement).value)} />
-                <input type="text" placeholder={t("settings.login")} value={nc.username || ""}
-                  onChange={(e) => setNc("username", (e.target as HTMLInputElement).value)}
-                  onInput={(e) => setNc("username", (e.target as HTMLInputElement).value)} />
-                <input type="password" placeholder={t("settings.password")} value={nc.password || ""}
-                  onChange={(e) => setNc("password", (e.target as HTMLInputElement).value)}
-                  onInput={(e) => setNc("password", (e.target as HTMLInputElement).value)} />
+              <div className="integ-panel">
+                <button className={`integ-header${ncOpen ? " open" : ""}`}
+                  onClick={() => setNcOpen(!ncOpen)}>
+                  <img src="nextcloud.svg" className="integ-icon" alt="Nextcloud" />
+                  <span className="integ-title">{t("settings.integrationNextcloud")}</span>
+                  <i className={`bi integ-caret${ncOpen ? " bi-chevron-up" : " bi-chevron-down"}`} />
+                </button>
+                {ncOpen && (
+                  <div className="integ-body">
+                    <div className="settings-row">
+                      <label className="check-label">
+                        <input type="checkbox" checked={!!nc.enabled}
+                          onChange={(e) => setNc("enabled", (e.target as HTMLInputElement).checked)} />
+                        {t("settings.integrationEnabled")}
+                      </label>
+                    </div>
+                    <div className="integ-field">
+                      <label htmlFor="nc-url">{t("settings.integrationUrl")}</label>
+                      <input id="nc-url" type="text" placeholder="https://cloud.example.com" value={nc.baseUrl || ""}
+                        onChange={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)}
+                        onInput={(e) => setNc("baseUrl", (e.target as HTMLInputElement).value)} />
+                    </div>
+                    <div className="integ-field">
+                      <label htmlFor="nc-folder">{t("settings.integrationFolder")}</label>
+                      <input id="nc-folder" type="text" placeholder={t("settings.integrationFolderPh")} value={nc.folder || ""}
+                        onChange={(e) => setNc("folder", (e.target as HTMLInputElement).value)}
+                        onInput={(e) => setNc("folder", (e.target as HTMLInputElement).value)} />
+                    </div>
+                    <div className="integ-field">
+                      <label htmlFor="nc-login">{t("settings.login")}</label>
+                      <input id="nc-login" type="text" placeholder={t("settings.login")} value={nc.username || ""}
+                        onChange={(e) => setNc("username", (e.target as HTMLInputElement).value)}
+                        onInput={(e) => setNc("username", (e.target as HTMLInputElement).value)} />
+                    </div>
+                    <div className="integ-field">
+                      <label htmlFor="nc-pass">{t("settings.password")}</label>
+                      <input id="nc-pass" type="password" placeholder={t("settings.password")} value={nc.password || ""}
+                        onChange={(e) => setNc("password", (e.target as HTMLInputElement).value)}
+                        onInput={(e) => setNc("password", (e.target as HTMLInputElement).value)} />
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="settings-group">
                 <label>{t("settings.qrTtl")}</label>

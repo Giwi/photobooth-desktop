@@ -72,5 +72,7 @@
   "settings.qrTtl": "Expiration du QR (secondes)",
   "qr.scanToDownload": "Scannez pour télécharger votre photo",
   "about.title": "À propos",
-  "about.description": "Une application de photomaton de bureau avec flux webcam en direct, superpositions d'arrière-plan et mode bande photo."
+  "about.description": "Une application de photomaton de bureau avec flux webcam en direct, superpositions d'arrière-plan et mode bande photo.",
+  "settings.integrationUrl": "URL du serveur",
+  "settings.integrationFolder": "Dossier"
 }

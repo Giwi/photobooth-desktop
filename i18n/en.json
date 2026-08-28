@@ -72,5 +72,7 @@
   "settings.qrTtl": "QR expiry (seconds)",
   "qr.scanToDownload": "Scan to download your photo",
   "about.title": "About",
-  "about.description": "A desktop photobooth application with live webcam feed, background overlays, and photo strip mode."
+  "about.description": "A desktop photobooth application with live webcam feed, background overlays, and photo strip mode.",
+  "settings.integrationUrl": "Server URL",
+  "settings.integrationFolder": "Folder"
 }

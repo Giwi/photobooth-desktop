@@ -17,6 +17,7 @@ cp src/mainview/styles/index.css dist/renderer/index.css
 cp src/mainview/html/splash.html dist/renderer/splash.html
 cp src/mainview/assets/splash.png dist/renderer/splash.png
 cp src/mainview/assets/icon.png dist/renderer/icon.png
+cp src/mainview/assets/nextcloud.svg dist/renderer/nextcloud.svg
 cp -r src/mainview/vendor dist/renderer/vendor
 
 echo "Built dist/main.cjs dist/preload.cjs dist/renderer/"

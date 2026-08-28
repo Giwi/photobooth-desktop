@@ -8,19 +8,26 @@ const DAV = "/remote.php/dav";
 const OCS = "/ocs/v1.php/apps/files_sharing/api/v1/shares";
 const USER_AGENT = "Photobooth-Desktop/0.0.6";
 
+// The stored folder may itself be URL-encoded (e.g. "Photos 2026-08-30" saved
+// as "Photos%202026-08-30"). Normalize by decoding once, then each helper
+// encodes per-segment for the API it talks to. WebDAV wants encoded segments,
+// the OCS Share API wants the decoded filesystem path.
+function folderParts(cfg: NextcloudConfig): string[] {
+  const decoded = decodeURIComponent(cfg.folder || "Photobooth");
+  return decoded.split("/").filter(Boolean);
+}
+
 function davFolder(cfg: NextcloudConfig) {
   // Drop into the user's home under the configured subfolder (default
   // "Photobooth"). Nested subfolder paths are created on first upload.
-  const folder = (cfg.folder || "Photobooth").split("/").filter(Boolean).join("/");
-  return `${DAV}/files/${encodeURIComponent(cfg.username)}/${folder}`;
+  return `${DAV}/files/${encodeURIComponent(cfg.username)}/${folderParts(cfg).map(encodeURIComponent).join("/")}`;
 }
 
 async function ensureFolder(cfg: NextcloudConfig) {
   // MKCOL only creates one level; walk the subfolder path creating each level.
   const base = cfg.baseUrl.replace(/\/$/, "");
-  const parts = (cfg.folder || "Photobooth").split("/").filter(Boolean);
   let path = `${DAV}/files/${encodeURIComponent(cfg.username)}`;
-  for (const part of parts) {
+  for (const part of folderParts(cfg)) {
     path += `/${encodeURIComponent(part)}`;
     const res = await fetch(`${base}${path}/`, {
       method: "MKCOL",
@@ -39,10 +46,9 @@ function basicAuth(cfg: NextcloudConfig) {
   return "Basic " + Buffer.from(`${cfg.username}:${cfg.password}`).toString("base64");
 }
 
+// The OCS Share API expects the decoded filesystem path (Nextcloud encodes it).
 function sharePath(cfg: NextcloudConfig) {
-  // Nextcloud OCS share API paths are relative to the user's home, so reuse
-  // the same configured subfolder.
-  return `/${(cfg.folder || "Photobooth").split("/").filter(Boolean).join("/")}`;
+  return `/${folderParts(cfg).join("/")}`;
 }
 
 export async function upload(
@@ -88,17 +94,19 @@ export async function upload(
   });
 
   let shareUrl = "";
+  let shareErr = "";
   const text = await ocs.text();
   try {
     const json = JSON.parse(text);
     const url = json?.ocs?.data?.url;
+    shareErr = json?.ocs?.meta?.message || "";
     if (typeof url === "string") shareUrl = url;
   } catch {
     /* non-JSON response */
   }
 
   if (!shareUrl) {
-    throw new Error(`Nextcloud share creation failed (${ocs.status})`);
+    throw new Error(`Nextcloud share creation failed (${ocs.status}): ${shareErr} :: ${text.slice(0, 200)}`);
   }
 
   return { url: shareUrl };

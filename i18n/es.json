@@ -72,5 +72,7 @@
   "settings.qrTtl": "Caducidad del QR (segundos)",
   "qr.scanToDownload": "Escanee para descargar su foto",
   "about.title": "Acerca de",
-  "about.description": "Una aplicación de fotomatón de escritorio con transmisión de cámara web en vivo, superposiciones de fondo y modo de tira de fotos."
+  "about.description": "Una aplicación de fotomatón de escritorio con transmisión de cámara web en vivo, superposiciones de fondo y modo de tira de fotos.",
+  "settings.integrationUrl": "URL del servidor",
+  "settings.integrationFolder": "Carpeta"
 }

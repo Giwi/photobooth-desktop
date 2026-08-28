@@ -72,5 +72,7 @@
   "settings.qrTtl": "QR-Ablauf (Sekunden)",
   "qr.scanToDownload": "Zum Herunterladen scannen",
   "about.title": "Über",
-  "about.description": "Eine Desktop-Photobooth-Anwendung mit Live-Webcam-Feed, Hintergrundüberlagerungen und Fotostreifen-Modus."
+  "about.description": "Eine Desktop-Photobooth-Anwendung mit Live-Webcam-Feed, Hintergrundüberlagerungen und Fotostreifen-Modus.",
+  "settings.integrationUrl": "Server-URL",
+  "settings.integrationFolder": "Ordner"
 }

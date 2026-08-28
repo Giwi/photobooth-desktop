@@ -971,24 +971,88 @@ footer a:hover {
   border-color: var(--accent);
 }
 
-.integ-name {
+.integ-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+.integ-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 600 !important;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.integ-header:hover { background: var(--surface-hover); }
+.integ-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+.integ-title { flex: 1; text-align: left; }
+.integ-caret { color: var(--text-muted); transition: transform 0.2s ease; }
+.integ-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.integ-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+}
+.integ-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.integ-body input[type="text"],
+.integ-body input[type="password"] {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.integ-body input[type="text"]:focus,
+.integ-body input[type="password"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 .check-label {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 2px 0 0;
   font-size: 0.9rem;
   color: var(--text);
   cursor: pointer;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 .check-label input[type="checkbox"] {
   width: 16px;
   height: 16px;
+  margin-right: 2px;
   accent-color: var(--accent-strong);
   cursor: pointer;
 }
