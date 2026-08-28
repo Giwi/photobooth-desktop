@@ -192,7 +192,7 @@
     <h1>Photobooth Desktop</h1>
     <p class="tagline">A desktop photobooth for events and weddings. Live webcam feed, background overlays, photo strips, countdown capture - with keyboard and gamepad support.</p>
     <div class="badges">
-      <span class="badge">v0.0.6</span>
+      <span class="badge">v0.0.7</span>
       <span class="badge">Linux · Windows</span>
       <span class="badge">Apache-2.0</span>
     </div>
@@ -213,7 +213,7 @@
         <div class="feat"><span class="ico-chip"><i class="bi bi-film"></i></span><h3>Photo strip</h3><p>Classic 4-shot strip in a single picture.</p></div>
         <div class="feat"><span class="ico-chip"><i class="bi bi-hourglass-split"></i></span><h3>Countdown capture</h3><p>3, 5 or 10 second countdown with flash.</p></div>
         <div class="feat"><span class="ico-chip"><i class="bi bi-printer"></i></span><h3>Print &amp; save</h3><p>Save photos, send them to a printer, or both.</p></div>
-        <div class="feat"><span class="ico-chip"><i class="bi bi-cloud-upload"></i></span><h3>Nextcloud upload</h3><p>Auto-upload shots and share them with a QR code.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-cloud-upload"></i></span><h3>Photo sharing</h3><p>Upload to Nextcloud, Google Drive, Dropbox, OneDrive or FTP, plus email and print sharing.</p></div>
         <div class="feat"><span class="ico-chip"><i class="bi bi-controller"></i></span><h3>Keyboard &amp; gamepad</h3><p>Full rebinding for guests who prefer buttons.</p></div>
         <div class="feat"><span class="ico-chip"><i class="bi bi-droplet"></i></span><h3>Watermark</h3><p>Event name or date stamped on every shot.</p></div>
         <div class="feat"><span class="ico-chip"><i class="bi bi-palette"></i></span><h3>7 themes</h3><p>Dark, light, violet, orange, cyan, graphite, rose.</p></div>
@@ -281,12 +281,13 @@
   <section>
     <div class="wrap">
       <p class="eyebrow">Share the moment</p>
-      <h2>Nextcloud integration</h2>
-      <p class="sub">Set up in Settings → Integrations. After each capture the photo is uploaded to your Nextcloud, and a QR code with a public share link is shown on the preview so guests can download it straight to their phone.</p>
+      <h2>Integrations</h2>
+      <p class="sub">Set up in Settings → Integrations. Send every shot to your cloud, email it to a guest, or auto-print it. Google Drive, Dropbox and OneDrive use OAuth with a QR share link on preview; FTP/FTPs/SFTP uploads for backup; SMTP email sends the photo to an address a guest types in; and the CUPS printer picker targets a specific printer.</p>
       <div class="features">
-        <div class="feat"><span class="ico-chip"><i class="bi bi-cloud-arrow-up"></i></span><h3>WebDAV upload</h3><p>Shots are pushed to a folder on your Nextcloud instance as they are taken.</p></div>
-        <div class="feat"><span class="ico-chip"><i class="bi bi-link-45deg"></i></span><h3>Public share link</h3><p>An OCS share (read-only) is created for each upload automatically.</p></div>
-        <div class="feat"><span class="ico-chip"><i class="bi bi-qr-code"></i></span><h3>QR download</h3><p>A QR code with the share link overlays the preview; it auto-hides after a configurable expiry.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-cloud-arrow-up"></i></span><h3>Cloud upload</h3><p>Nextcloud (WebDAV) plus Google Drive, Dropbox and OneDrive via OAuth, and FTP/SFTP via curl.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-qr-code"></i></span><h3>QR share link</h3><p>Cloud uploads get a public share link shown as a QR code on the preview for phone downloads.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-envelope"></i></span><h3>Email to guests</h3><p>Guests type their address on the preview and the photo is emailed to them via SMTP.</p></div>
+        <div class="feat"><span class="ico-chip"><i class="bi bi-printer"></i></span><h3>Printer picker</h3><p>Detect printers on the system and send every photo to the one you choose.</p></div>
       </div>
     </div>
   </section>
@@ -300,22 +301,22 @@
       <div class="dl-grid">
         <div class="dl">
           <div class="dl-os"><i class="bi bi-ubuntu"></i> Linux</div>
-          <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.6/photobooth-desktop_0.0.6_amd64.deb" rel="noopener">Download .deb</a>
-          <a class="btn" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.6/photobooth-desktop-0.0.6.x86_64.rpm" rel="noopener">Download .rpm</a>
-          <a class="btn" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.6/Photobooth-0.0.6.AppImage" rel="noopener">Download AppImage</a>
+          <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.7/photobooth-desktop_0.0.7_amd64.deb" rel="noopener">Download .deb</a>
+          <a class="btn" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.7/photobooth-desktop-0.0.7.x86_64.rpm" rel="noopener">Download .rpm</a>
+          <a class="btn" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.7/Photobooth-0.0.7.AppImage" rel="noopener">Download AppImage</a>
         </div>
         <div class="dl">
           <div class="dl-os"><i class="bi bi-microsoft"></i> Windows</div>
-          <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.6/Photobooth%20Setup%200.0.6.exe" rel="noopener">Download .exe installer</a>
+          <a class="btn primary" href="https://github.com/Giwi/photobooth-desktop/releases/download/v0.0.7/Photobooth%20Setup%200.0.7.exe" rel="noopener">Download .exe installer</a>
         </div>
       </div>
 
       <div class="steps">
         <div class="step"><p>Install a webcam and (optionally) a printer. Plug in a gamepad for guest-friendly capture.</p></div>
         <div class="step"><div class="step-body">
-          <p><b>Debian / Ubuntu:</b> <code>sudo apt install ./photobooth-desktop_0.0.6_amd64.deb</code></p>
-          <p><b>Fedora / RHEL:</b> <code>sudo dnf install ./photobooth-desktop-0.0.6.x86_64.rpm</code></p>
-          <p><b>Any Linux:</b> <code>chmod +x Photobooth-0.0.6.AppImage &amp;&amp; ./Photobooth-0.0.6.AppImage</code></p>
+          <p><b>Debian / Ubuntu:</b> <code>sudo apt install ./photobooth-desktop_0.0.7_amd64.deb</code></p>
+          <p><b>Fedora / RHEL:</b> <code>sudo dnf install ./photobooth-desktop-0.0.7.x86_64.rpm</code></p>
+          <p><b>Any Linux:</b> <code>chmod +x Photobooth-0.0.7.AppImage &amp;&amp; ./Photobooth-0.0.7.AppImage</code></p>
           <p><b>Windows:</b> run the installer.</p>
         </div></div>
         <div class="step"><p>Drop background images into the Settings → Backgrounds tab, pick a theme, and start the party.</p></div>

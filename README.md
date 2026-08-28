@@ -22,7 +22,8 @@ Product page (GitHub Pages): <https://giwi.github.io/photobooth-desktop>
 - Optional watermark text
 - In-app settings overlay (instead of editing config.json)
 - Save to disk and optional print (4×6 Glossy)
-- Integrations (Nextcloud upload + QR code share link)
+- Integrations (photo sharing via Nextcloud, Google Drive, Dropbox, OneDrive,
+  FTP/SFTP, SMTP email, and a CUPS printer picker)
 
 Runtime data (config, backgrounds) lives in the OS cache dir, not the app
 bundle: `~/.cache/photobooth` (Linux), `~/Library/Caches/photobooth` (macOS),
@@ -34,18 +35,44 @@ in the Settings → Background tab.
 ## Integrations
 
 Integrations let guests grab their photos on their own phone without a
-computer. Configure them in Settings → Integrations.
+computer, or let the booth send/print every shot automatically. Configure
+them in Settings → Integrations.
+
+Every integration has an **enabled** toggle plus its own fields.
 
 ### Nextcloud
 
-- Toggle the integration and, when enabled, set the server URL, login,
-  password, and destination folder.
-- After each capture the photo is uploaded over WebDAV to that folder, and a
-  **public share link** is created via the Nextcloud OCS Share API
-  (`shareType=3`, read-only).
-- A QR code with the share link is overlaid on the preview so a phone can
-  open the download directly. The QR auto-hides after a configurable TTL or
-  when the next capture starts.
+- Set the server URL, login, password, and destination folder.
+- After each capture the photo is uploaded over WebDAV, and a **public share
+  link** is created via the Nextcloud OCS Share API (`shareType=3`, read-only).
+- A QR code with the share link is overlaid on the preview so a phone can open
+  the download directly. The QR auto-hides after a configurable TTL or when the
+  next capture starts.
+
+### Google Drive, Dropbox, OneDrive (OAuth)
+
+- Each uses **OAuth 2.0** (PKCE) and uploads full-resolution photos to a folder
+  you choose, then creates a public share link shown as a QR code on preview.
+- You must supply your own app credentials (Client ID, and for Dropbox also an
+  App secret) from the provider's developer console, and authorize once in the
+  browser. Authorized tokens are stored in the settings config.
+- Redirect URI to register: `http://127.0.0.1:5756/callback`.
+
+### FTP / SFTP
+
+- Uploads shots via `curl` to any FTP/FTPS/SFTP server using host, port, login,
+  password and target folder. No QR/share link is created (server has no public
+  web URL), so this is for centralizing backups rather than guest download.
+
+### Email (SMTP)
+
+- When email is enabled, the preview shows an extra field where a guest types
+  their address; on save the photo is emailed to that address.
+
+### Printer
+
+- Choose from the printers detected on the system (via CUPS `lpstat`) and the
+  booth sends prints to that printer with `lp -d <printer>`.
 
 Set the QR expiry (in seconds) with the dedicated setting; the default is 60 s.
 
