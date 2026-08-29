@@ -1,7 +1,13 @@
 // Printer integration: uses Electron's built-in print API so it works on
 // Linux, Windows, and macOS. Listing uses webContents.getPrintersAsync();
-// printing renders the photo full-page on the printer's selected sheet (2x3in
-// glossy), then prints silently to the chosen (or default) printer.
+// printing renders the photo full-page on the printer's 2x3in glossy sheet,
+// then prints silently to the chosen (or default) printer.
+//
+// Orientation handling is platform-specific: Linux/macOS honor the requested
+// landscape 3x2 page, so the 3:2 capture fills it directly. Windows silently
+// feeds/exposes the 2x3 glossy as portrait regardless of the requested page, so
+// on Windows we rotate the photo 90deg and print onto the driver's loaded
+// 2x3 sheet to get an upright, full-bleed photo.
 import { app, BrowserWindow, WebContents } from "electron";
 import { readFileSync, writeFileSync, rmSync } from "fs";
 import { join } from "path";
@@ -9,13 +15,15 @@ import { randomUUID } from "crypto";
 import { PNG } from "pngjs";
 import { PrinterConfig } from "./types";
 
-// 3in x 2in (landscape) in microns. Passing width > height forces a landscape
-// sheet; relying on the driver's default page size often yields portrait 2x3.
+const IS_WINDOWS = process.platform === "win32";
+
+// Linux/macOS: 3in x 2in (landscape) in microns, passed explicitly since these
+// platforms honor the page size. Windows uses the driver's loaded paper size
+// (2x3 glossy) instead — see print() below.
 const PAGE_SIZE = { width: 76200, height: 50800 };
 
-// Rotates a PNG image 90° clockwise so the printed photo comes out landscape
-// even when the printer driver insists on a portrait sheet. Returns the path to
-// a new temp file.
+// Rotates a PNG image 90° clockwise so the 3:2 landscape capture fills the
+// portrait 2x3 glossy sheet upright and edge to edge (Windows only).
 function rotateClockwise(inputPath: string, outputPath: string): void {
   const png = PNG.sync.read(readFileSync(inputPath));
   const { width, height } = png;
@@ -46,11 +54,13 @@ export function listPrinters(win?: WebContents): Promise<string[]> {
   });
 }
 
-// Render a full-page landscape (3:2) photo, filling the sheet edge to edge with
-// no white borders and no distortion (captures are 3:2, matching 2x3 paper).
+// Render a full-page photo, filling the sheet edge to edge with no white
+// borders and no distortion. On Linux/macOS the page is landscape 3x2; on
+// Windows it uses the printer driver's loaded 2x3 glossy sheet.
 function buildPrintHtml(imageSrc: string): string {
+  const pageRule = IS_WINDOWS ? "@page { margin: 0; }" : "@page { size: 3in 2in; margin: 0; }";
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-    @page { size: 3in 2in; margin: 0; }
+    ${pageRule}
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
     body { display: flex; }
     img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -66,15 +76,21 @@ export function print(cfg: PrinterConfig, filepath: string): Promise<void> {
     const htmlPath = join(dir, `photobooth-print-${id}.html`);
     const rotatedPath = join(dir, `photobooth-print-${id}-rotated.png`);
 
-    // Rotate the photo 90° so it prints landscape even on a portrait sheet.
-    try {
-      rotateClockwise(filepath, rotatedPath);
-    } catch (err) {
-      reject(err instanceof Error ? err : new Error(String(err)));
-      return;
+    // Windows prints the 2x3 glossy as portrait no matter what, so rotate the
+    // 3:2 landscape photo to 2:3 to print it upright and full-bleed. Linux and
+    // macOS honor the landscape page directly, so no rotation is needed.
+    let imagePath = filepath;
+    if (IS_WINDOWS) {
+      try {
+        rotateClockwise(filepath, rotatedPath);
+        imagePath = rotatedPath;
+      } catch (err) {
+        reject(err instanceof Error ? err : new Error(String(err)));
+        return;
+      }
     }
 
-    const imageSrc = "file:///" + rotatedPath.replace(/\\/g, "/");
+    const imageSrc = "file:///" + imagePath.replace(/\\/g, "/");
     try {
       writeFileSync(htmlPath, buildPrintHtml(imageSrc), "utf8");
     } catch (err) {
@@ -128,8 +144,13 @@ export function print(cfg: PrinterConfig, filepath: string): Promise<void> {
             silent: true,
             deviceName,
             printBackground: true,
-            // Force a landscape 3x2 sheet: width > height selects landscape.
-            pageSize: PAGE_SIZE,
+            // Linux/macOS: explicit landscape 3x2 page, honored by the print
+            // backend. Windows: use the printer's own loaded paper (2x3 glossy)
+            // so the photo fills the actual sheet instead of a custom page size
+            // being centered/scaled in the printable area. Orientation on
+            // Windows is fixed by rotating the photo, not by the page size.
+            pageSize: IS_WINDOWS ? undefined : PAGE_SIZE,
+            usePrinterDefaultPageSize: IS_WINDOWS,
           },
           (ok, reason) => {
             win.destroy();
