@@ -8,14 +8,15 @@
   "desktopName": "Photobooth",
   "scripts": {
     "dev": "yarn electron:dev",
-    "electron:build": "bash scripts/build-electron.sh",
-    "electron:dev": "bash scripts/build-electron.sh && electron .",
+    "electron:build": "node scripts/build-electron.mjs",
+    "electron:dev": "node scripts/build-electron.mjs && electron .",
     "electron:start": "electron .",
-    "electron:dist": "bash scripts/build-electron.sh && electron-builder --linux deb rpm AppImage"
+    "electron:dist": "node scripts/build-electron.mjs && electron-builder --linux deb rpm AppImage"
   },
   "dependencies": {
     "nodemailer": "^9.0.6",
     "oauth4webapi": "^3.8.7",
+    "pngjs": "^5.0.0",
     "preact": "^10.29.7",
     "qrcode": "^1.5.4"
   },

@@ -51,6 +51,8 @@
   "settings.posBottom": "Bas",
   "settings.posCenter": "Centre",
   "settings.posTop": "Haut",
+  "settings.printer": "Imprimante",
+  "settings.printerDefault": "Imprimante par défaut",
   "settings.qrTtl": "Expiration du QR (secondes)",
   "settings.save": "Enregistrer",
   "settings.tabBackground": "Fond",

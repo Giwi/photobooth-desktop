@@ -47,11 +47,11 @@ const POS_OPTIONS: { v: string | null; k: string }[] = [
   { v: "bottom", k: "settings.posBottom" },
 ];
 
-const LANG_OPTIONS: { id: string; label: string }[] = [
-  { id: "en", label: "English" },
-  { id: "fr", label: "Français" },
-  { id: "de", label: "Deutsch" },
-  { id: "es", label: "Español" },
+const LANG_OPTIONS: { value: string; label: string }[] = [
+  { value: "en", label: "English" },
+  { value: "fr", label: "Français" },
+  { value: "de", label: "Deutsch" },
+  { value: "es", label: "Español" },
 ];
 
 const THEMES: { id: string; k: string }[] = [
@@ -445,9 +445,10 @@ export function SettingsOverlay({
                   {
                     id: "printer",
                     label: t("settings.printer"),
-                    options: printers.length
-                      ? printers.map((p) => ({ value: p, label: p }))
-                      : [{ value: "", label: t("settings.noPrinter") }],
+                    options: [
+                      { value: "", label: t("settings.printerDefault") },
+                      ...printers.map((p) => ({ value: p, label: p })),
+                    ],
                   },
                 ]}
                 values={integrations.printer || {}}

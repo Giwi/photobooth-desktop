@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { Select } from "./Select";
 
 export interface Field {
   id: string;
@@ -49,17 +50,11 @@ export function IntegrationPanel({
               onChange={(e) => onChange?.(f.id, (e.target as HTMLInputElement).checked)}
             />
           ) : f.options ? (
-            <select
-              id={f.id}
+            <Select
               value={values?.[f.id] || ""}
-              onChange={(e) => onChange?.(f.id, (e.target as HTMLSelectElement).value)}
-            >
-              {f.options.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+              options={f.options}
+              onChange={(v) => onChange?.(f.id, v)}
+            />
           ) : (
             <input
               id={f.id}
