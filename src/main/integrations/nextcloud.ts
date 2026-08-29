@@ -6,7 +6,7 @@ import { NextcloudConfig } from "./types";
 // WebDAV-ish helpers using Node's fetch (bundled Electron-node has global fetch).
 const DAV = "/remote.php/dav";
 const OCS = "/ocs/v1.php/apps/files_sharing/api/v1/shares";
-const USER_AGENT = "Photobooth-Desktop/0.0.7";
+const USER_AGENT = "Photobooth-Desktop/0.0.8";
 
 // The stored folder may itself be URL-encoded (e.g. "Photos 2026-08-30" saved
 // as "Photos%202026-08-30"). Normalize by decoding once, then each helper
