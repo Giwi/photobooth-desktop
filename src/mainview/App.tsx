@@ -611,7 +611,7 @@ export function App() {
         showPreview={showPreview} previewSrc={previewSrc} busy={busy}
         qrVisible={qrVisible} qrDataUrl={qrDataUrl}
         emailEnabled={!!integrations.email?.enabled}
-        t={t} onPreviewAction={(a, email) => actionResolverRef.current?.(a, email)}
+        t={t} onPreviewAction={(a, email) => actionResolverRef.current?.({ action: a, email })}
       />
 
       <SettingsBar
