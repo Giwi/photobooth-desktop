@@ -22,7 +22,7 @@ export function AboutOverlay({ t, onClose }: Props) {
             <img src="./icon.png" alt="" />
           </div>
           <h3>Photobooth Desktop</h3>
-          <p className="about-version">v0.0.10</p>
+          <p className="about-version">v0.0.11</p>
           <p className="about-description">{t("about.description")}</p>
           <div className="about-links">
             <a href="https://giwi.fr" target="_blank" rel="noopener noreferrer">
