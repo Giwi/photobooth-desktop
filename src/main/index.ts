@@ -10,7 +10,6 @@ import {
 } from "fs";
 import { join, basename } from "path";
 import { homedir } from "os";
-import { spawn } from "child_process";
 
 import { uploadToAll, authorizeOAuth, listPrinters, email, printer } from "./integrations";
 
@@ -162,9 +161,6 @@ register("savePhoto", async ({ image, print, email: recipient }: { image: string
       } catch (err) {
         printResult = (err as Error).message;
         console.error("Print failed:", printResult);
-        // Fall back to the default `lp` so printing still works if no printer
-        // was chosen.
-        spawn("lp", ["-o", "media=4x6in", "-o", "MediaType=Glossy", filepath]);
       }
     }
 
@@ -199,7 +195,7 @@ register("savePhoto", async ({ image, print, email: recipient }: { image: string
 
 register("listPrinters", async () => {
   try {
-    return { printers: await listPrinters() };
+    return { printers: await listPrinters(mainWindow?.webContents) };
   } catch (err) {
     return { printers: [], error: (err as Error).message };
   }

@@ -1,36 +1,53 @@
-// CUPS printer integration: exposes the system printers so the user can pick a
-// default printer, then prints to it with `lp -d`. Listing uses `lpstat -p`.
-import { spawn, execFile } from "child_process";
+// Printer integration: uses Electron's built-in print API so it works on
+// Linux, Windows, and macOS. Listing uses webContents.getPrintersAsync();
+// printing renders the photo full-bleed on a 4x6in landscape page then prints
+// silently to the chosen (or default) printer.
+import { BrowserWindow, WebContents } from "electron";
+import { readFileSync } from "fs";
 import { PrinterConfig } from "./types";
 
-// Returns the list of installed printer names (empty on error / no CUPS).
-export function listPrinters(): Promise<string[]> {
+// Returns the list of installed printer names (empty on error / no printers).
+export function listPrinters(win?: WebContents): Promise<string[]> {
   return new Promise((resolve) => {
-    execFile("lpstat", ["-p"], (err, stdout) => {
-      if (err) return resolve([]);
-      const names: string[] = [];
-      for (const line of stdout.split("\n")) {
-        const m = line.match(/^printer\s+(\S+)/);
-        if (m && !line.includes("disabled")) names.push(m[1]);
-      }
-      resolve(names);
-    });
+    if (!win) return resolve([]);
+    win
+      .getPrintersAsync()
+      .then((printers) => resolve(printers.map((p) => p.name)))
+      .catch(() => resolve([]));
   });
 }
 
-// True when `printer` is currently installed (used to render the QR only if a
-// usable printer was configured).
+// Render a 4x6in landscape page with the photo filling it edge to edge.
+function buildPrintHtml(filepath: string): string {
+  const b64 = readFileSync(filepath).toString("base64");
+  const src = `data:image/png;base64,${b64}`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+    @page { size: 6in 4in; margin: 0; }
+    html, body { margin: 0; width: 6in; height: 4in; }
+    img { width: 6in; height: 4in; object-fit: fill; display: block; }
+  </style></head><body><img src="${src}"></body></html>`;
+}
+
+// Prints `filepath` silently to the configured printer, or the OS default when
+// none was chosen.
 export function print(cfg: PrinterConfig, filepath: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (!cfg.printer) return reject(new Error("No printer selected"));
-    const args = ["-d", cfg.printer, filepath];
-    const child = spawn("lp", args, { stdio: ["ignore", "ignore", "pipe"] });
-    let err = "";
-    child.stderr.on("data", (d) => (err += d.toString()));
-    child.on("error", (e) => reject(e));
-    child.on("close", (code) => {
-      if (code !== 0) reject(new Error(err.trim() || `lp exited ${code}`));
-      else resolve();
+    const win = new BrowserWindow({
+      show: false,
+      webPreferences: { sandbox: true, contextIsolation: true },
     });
+    win.webContents.once("did-fail-load", (_e, code, desc) => {
+      win.destroy();
+      reject(new Error(`Cannot render print page (${code} ${desc}).`));
+    });
+    win.webContents.once("did-finish-load", () => {
+      const deviceName = cfg.printer || undefined;
+      win.webContents.print({ silent: true, deviceName, printBackground: true }, (ok, reason) => {
+        win.destroy();
+        if (ok) resolve();
+        else reject(new Error(reason || "Print failed"));
+      });
+    });
+    win.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(buildPrintHtml(filepath)));
   });
 }
