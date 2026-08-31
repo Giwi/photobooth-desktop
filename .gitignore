@@ -11,7 +11,11 @@ artifacts
 CLAUDE.md
 backgrounds/*
 config.json
-!backgrounds/Empty-frame.png
+!backgrounds/*.png
+!backgrounds/*.jpg
+!backgrounds/*.jpeg
+!backgrounds/*.webp
+!backgrounds/*.svg
 # code coverage
 coverage
 *.lcov
