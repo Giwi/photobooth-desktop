@@ -64,7 +64,7 @@ export function App() {
   const gamepadMapRef = useRef(gamepadMap);
   const busyRef = useRef(busy);
   const showPreviewRef = useRef(showPreview);
-  const actionResolverRef = useRef<((action: string) => void) | null>(null);
+  const actionResolverRef = useRef<((res: { action: string; email?: string }) => void) | null>(null);
   const prevGamepadStateRef = useRef<Record<number, boolean>>({});
   const prevAxisStateRef = useRef<Record<string, boolean>>({});
   const mirrorModeRef = useRef(mirrorMode);
@@ -216,9 +216,9 @@ export function App() {
   // --- Dispatch ---
   function dispatchAction(action: string) {
     if (action === "capture") { if (!busyRef.current) capture(); }
-    else if (action === "save") { if (showPreviewRef.current) actionResolverRef.current?.("save"); }
-    else if (action === "print") { if (showPreviewRef.current) actionResolverRef.current?.("print"); }
-    else if (action === "cancel") { if (showPreviewRef.current) actionResolverRef.current?.("cancel"); }
+    else if (action === "save") { if (showPreviewRef.current) actionResolverRef.current?.({ action: "save" }); }
+    else if (action === "print") { if (showPreviewRef.current) actionResolverRef.current?.({ action: "print" }); }
+    else if (action === "cancel") { if (showPreviewRef.current) actionResolverRef.current?.({ action: "cancel" }); }
     else if (action === "prevBg") {
       const len = backgroundsRef.current.length;
       if (!busyRef.current && len)
