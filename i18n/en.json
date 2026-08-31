@@ -28,6 +28,7 @@
   "notify.settingsExported": "Settings exported to {path}",
   "notify.settingsImportFailed": "Settings import failed",
   "notify.settingsImported": "Settings imported",
+  "preview.saving": "Saving…",
   "qr.scanToDownload": "Scan to download your photo",
   "settings.appKey": "App key",
   "settings.appSecret": "App secret",

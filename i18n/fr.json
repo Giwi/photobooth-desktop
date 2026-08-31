@@ -28,6 +28,7 @@
   "notify.settingsExported": "Paramètres exportés vers {path}",
   "notify.settingsImportFailed": "Échec de l'import des paramètres",
   "notify.settingsImported": "Paramètres importés",
+  "preview.saving": "Enregistrement…",
   "qr.scanToDownload": "Scannez pour télécharger votre photo",
   "settings.appKey": "Clé d'application",
   "settings.appSecret": "Secret d'application",

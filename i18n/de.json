@@ -28,6 +28,7 @@
   "notify.settingsExported": "Einstellungen exportiert nach {path}",
   "notify.settingsImportFailed": "Import der Einstellungen fehlgeschlagen",
   "notify.settingsImported": "Einstellungen importiert",
+  "preview.saving": "Speichern…",
   "qr.scanToDownload": "Zum Herunterladen scannen",
   "settings.appKey": "App-Schlüssel",
   "settings.appSecret": "App-Geheimnis",

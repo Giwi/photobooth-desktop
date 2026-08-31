@@ -10,6 +10,7 @@ interface Props {
   showPreview: boolean;
   previewSrc: string;
   busy: boolean;
+  saving: boolean;
   qrVisible: boolean;
   qrDataUrl: string | null;
   emailEnabled: boolean;
@@ -21,7 +22,7 @@ interface Props {
 // compositor, countdown, flash, and the post-capture preview with actions.
 export function Viewport({
   videoRef, liveCanvasRef, compositorRef,
-  countdownNum, flashActive, showPreview, previewSrc, busy, qrVisible, qrDataUrl, emailEnabled, t, onPreviewAction,
+  countdownNum, flashActive, showPreview, previewSrc, busy, saving, qrVisible, qrDataUrl, emailEnabled, t, onPreviewAction,
 }: Props) {
   const [email, setEmail] = useState("");
   return (
@@ -37,26 +38,33 @@ export function Viewport({
       {showPreview && (
         <div id="preview">
           <img id="preview-img" src={previewSrc} alt="Captured photo" />
-          <div id="preview-actions">
-            {emailEnabled && (
-              <input
-                id="preview-email"
-                type="email"
-                placeholder={t("email.placeholder")}
-                value={email}
-                onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
-              />
-            )}
-            <button id="btn-save" onClick={() => onPreviewAction("save", email)}>
-              <i class="bi bi-check-lg" /> {t("btn.save")}
-            </button>
-            <button id="btn-print" onClick={() => onPreviewAction("print", email)}>
-              <i class="bi bi-printer" /> {t("btn.print")}
-            </button>
-            <button id="btn-cancel" onClick={() => onPreviewAction("cancel")}>
-              <i class="bi bi-x-lg" /> {t("btn.discard")}
-            </button>
-          </div>
+          {saving ? (
+            <div id="preview-saving">
+              <div class="preview-progress" aria-hidden="true"><div class="preview-progress-bar" /></div>
+              <span>{t("preview.saving")}</span>
+            </div>
+          ) : (
+            <div id="preview-actions">
+              {emailEnabled && (
+                <input
+                  id="preview-email"
+                  type="email"
+                  placeholder={t("email.placeholder")}
+                  value={email}
+                  onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+                />
+              )}
+              <button id="btn-save" onClick={() => onPreviewAction("save", email)}>
+                <i class="bi bi-check-lg" /> {t("btn.save")}
+              </button>
+              <button id="btn-print" onClick={() => onPreviewAction("print", email)}>
+                <i class="bi bi-printer" /> {t("btn.print")}
+              </button>
+              <button id="btn-cancel" onClick={() => onPreviewAction("cancel")}>
+                <i class="bi bi-x-lg" /> {t("btn.discard")}
+              </button>
+            </div>
+          )}
         </div>
       )}
       {qrVisible && qrDataUrl && (

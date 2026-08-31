@@ -32,6 +32,7 @@ export function App() {
   const [theme, setTheme] = useState("dark-violet");
   const [settingsTheme, setSettingsTheme] = useState("dark-violet");
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewSrc, setPreviewSrc] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -348,8 +349,8 @@ export function App() {
     setPreviewSrc(dataUrl);
     setShowPreview(true);
     const res = await new Promise<{ action: string; email?: string }>((resolve) => { actionResolverRef.current = resolve; });
-    setShowPreview(false);
     if (res.action !== "cancel") await savePhoto(dataUrl, res.action === "print", res.email);
+    setShowPreview(false);
   }
 
   async function captureStrip() {
@@ -390,11 +391,12 @@ export function App() {
     setPreviewSrc(stripUrl);
     setShowPreview(true);
     const res = await new Promise<{ action: string; email?: string }>((resolve) => { actionResolverRef.current = resolve; });
-    setShowPreview(false);
     if (res.action !== "cancel") await savePhoto(stripUrl, res.action === "print", res.email);
+    setShowPreview(false);
   }
 
   async function savePhoto(dataUrl: string, print: boolean, email?: string) {
+    setSaving(true);
     try {
       const result = await rpc.request.savePhoto({ image: dataUrl, print, email });
       if (result.error) notify(result.error, "error");
@@ -407,6 +409,8 @@ export function App() {
       }
     } catch {
       notify(t("notify.saveFailed"), "error");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -608,7 +612,7 @@ export function App() {
       <Viewport
         videoRef={videoRef} liveCanvasRef={liveCanvasRef} compositorRef={compositorRef}
         countdownNum={countdownNum} flashActive={flashActive}
-        showPreview={showPreview} previewSrc={previewSrc} busy={busy}
+        showPreview={showPreview} previewSrc={previewSrc} busy={busy} saving={saving}
         qrVisible={qrVisible} qrDataUrl={qrDataUrl}
         emailEnabled={!!integrations.email?.enabled}
         t={t} onPreviewAction={(a, email) => actionResolverRef.current?.({ action: a, email })}

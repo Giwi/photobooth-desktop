@@ -28,6 +28,7 @@
   "notify.settingsExported": "Ajustes exportados a {path}",
   "notify.settingsImportFailed": "Error al importar los ajustes",
   "notify.settingsImported": "Ajustes importados",
+  "preview.saving": "Guardando…",
   "qr.scanToDownload": "Escanee para descargar su foto",
   "settings.appKey": "Clave de app",
   "settings.appSecret": "Secreto de app",

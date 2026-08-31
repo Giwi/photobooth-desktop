@@ -52,11 +52,15 @@ const CONFIG_PATH = join(DATA_DIR, "config.json");
 mkdirSync(PHOTOS_DIR, { recursive: true });
 mkdirSync(BG_DIR, { recursive: true });
 
-// Seed defaults from the bundle on first run
+// Seed defaults from the bundle. Copy any bundled background that is not
+// already present (merge), so newly shipped default backgrounds appear for
+// existing users too, without overwriting user-added ones.
 try {
-  if (readdirSync(BG_DIR).length === 0 && existsSync(BUNDLE_BG_DIR)) {
+  if (existsSync(BUNDLE_BG_DIR)) {
     for (const f of readdirSync(BUNDLE_BG_DIR)) {
-      if (/\.(png|jpe?g|svg|webp)$/i.test(f)) cpSync(join(BUNDLE_BG_DIR, f), join(BG_DIR, f));
+      if (!/\.(png|jpe?g|svg|webp)$/i.test(f)) continue;
+      const dest = join(BG_DIR, f);
+      if (!existsSync(dest)) cpSync(join(BUNDLE_BG_DIR, f), dest);
     }
   }
 } catch {}
@@ -155,13 +159,15 @@ register("savePhoto", async ({ image, print, email: recipient }: { image: string
 
     if (print) {
       const printerCfg = (integrations.printer || {}) as { printer?: string };
-      try {
-        await printer.print({ enabled: true, printer: printerCfg.printer || "" }, filepath);
-        console.log(`Printed ${filename}`);
-      } catch (err) {
-        printResult = (err as Error).message;
-        console.error("Print failed:", printResult);
-      }
+      // Print in the background so the renderer is not blocked: the response
+      // (and the saving spinner) resolves once the file is written and the
+      // integrations are done, while the printer finishes on its own.
+      printer.print({ enabled: true, printer: printerCfg.printer || "" }, filepath)
+        .then(() => console.log(`Printed ${filename}`))
+        .catch((err) => {
+          printResult = (err as Error).message;
+          console.error("Print failed:", printResult);
+        });
     }
 
     // Upload the freshly saved photo to every activated integration.
